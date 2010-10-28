@@ -25,15 +25,6 @@
  */
 
 /* Sandworld - A sandbox game with multiple worlds.
- *
- * TODO:
- * 	[*]	Generic overlay for displaying and selecting items with
- * 		various actions.
- * 	[ ]	More items!
- * 	[ ]	Creation system.
- * 	[ ]	Tools.
- * 	[ ]	Make abyss drop actual items.
- *
  */
 #include "sandworld.h"
 #include "switem.h"

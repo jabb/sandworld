@@ -1,0 +1,42 @@
+
+Sandworld - A sandbox game, but bigger.
+################################################################################
+
+Compiling
+=========
+To compile sandworld you'll need a C compiler, the ncurses library and
+SCons. Running `scons` should build the program. If you do not wish to
+install SCons, a simple `gcc *.c -lncurses` should do the trick. After
+you successfully compile sandworld you can just type `./sandworld`.
+
+Playing
+=======
+Currently sandworld is not much of a game, but you can still play around with
+it. Here's some basic controls.
+
+hjkl	Basic movement, you can also use the arrow keys.
+<tab>	Switch contexts when you're in a window.
+<space>	Interact with something. (This also closes windows)
+q	Quit. This applies to everything (or should).
+w	Bring up information on yourself.
+e	Bring up your rucksack (inventory).
+a	Attack something!
+s	Swap items when looking at rucksacks.
+d	Drop an item (doesn't work when looking at rucksacks).
+f	Info. Get information on something nearby. (Not implemented)
+z	Use a skill. (Not implemented)
+x	Use your tool, this is similar to attack. (Not implemented)
+c	Item creation menu. (Not implemented)
+
+TODO
+====
+Subject to change...
+
+[ ]	Fix up the way items are represented and loaded to allow for the
+	creation of them.
+[ ]	Add more items and random item loot when breaking something.
+[ ]	Implement the creation of items.
+[ ]	Add more objects.
+[ ]	Implement the ability to travel to multiple worlds.
+[ ]	Random world generation; dungeon world, forest world, boring world.
+[ ]	Add some monsters.
