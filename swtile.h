@@ -23,41 +23,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef SWITEM_H
-#define SWITEM_H
+#ifndef SWRTILE_H
+#define SWRTILE_H
 
-/* Item types.
- */
-#define SW_ITEM_NONE		0
-#define SW_ITEM_WEAPON		(1 << 0)
-#define SW_ITEM_TOOL		(1 << 1)
-#define SW_ITEM_MATERIAL	(1 << 2)
+#include "sandworld.h"
 
-/* The item!
- */
-struct sw_item {
-	unsigned long flags;
-	int id;
-	const char *name;
-	int amount;
+struct sw_obj;
+
+enum sw_tile_type {
+	SW_TILE_BLANK,
+	SW_TILE_GRASS
 };
 
-/* Look up table values.
- */
-enum {
-	/*SW_ITEM_NONE,*/
-	SW_ITEM_DIRT=1,
-	SW_ITEM_WOOD,
-	SW_ITEM_PULVERIZER
+struct sw_tile {
+	enum sw_tile_type type;
+	attr_t attr;
+	color_t fg;
+	color_t bg;
+	int display;
+	struct sw_obj *object;
 };
 
-/* Create an item based on one of the lookup table values.
+struct sw_tile sw_tile_make(enum sw_tile_type type);
+/* TODO: Maybe remove this idea.
  */
-struct sw_item sw_item_make(unsigned long flags);
-int sw_item_areequal(struct sw_item i1, struct sw_item i2);
-int sw_item_isnone(struct sw_item i);
-/* Use item types for the flag.
- */
-int sw_item_is(struct sw_item i, unsigned long flags);
+void sw_tile_walkon(struct sw_tile tile, struct sw_obj *obj);
+void sw_tile_draw(struct sw_tile tile, int x, int y);
 
 #endif

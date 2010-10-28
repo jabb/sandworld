@@ -23,41 +23,49 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef SWITEM_H
-#define SWITEM_H
+#ifndef SWWORLD_H
+#define SWWORLD_H
 
-/* Item types.
- */
-#define SW_ITEM_NONE		0
-#define SW_ITEM_WEAPON		(1 << 0)
-#define SW_ITEM_TOOL		(1 << 1)
-#define SW_ITEM_MATERIAL	(1 << 2)
+#include "swtile.h"
 
-/* The item!
- */
-struct sw_item {
-	unsigned long flags;
-	int id;
-	const char *name;
-	int amount;
+struct sw_world {
+	int home_x;
+	int home_y;
+	struct sw_tile tiles[SW_WORLD_WIDTH][SW_WORLD_HEIGHT];
+	struct sw_world_link {
+		int x;
+		int y;
+		int dest_x;
+		int dest_y;
+		struct sw_world *world;
+	} *linkto, *linkfrom;
 };
 
-/* Look up table values.
- */
-enum {
-	/*SW_ITEM_NONE,*/
-	SW_ITEM_DIRT=1,
-	SW_ITEM_WOOD,
-	SW_ITEM_PULVERIZER
-};
+struct sw_world *sw_world_alloc(void);
+void sw_world_free(struct sw_world *world);
 
-/* Create an item based on one of the lookup table values.
- */
-struct sw_item sw_item_make(unsigned long flags);
-int sw_item_areequal(struct sw_item i1, struct sw_item i2);
-int sw_item_isnone(struct sw_item i);
-/* Use item types for the flag.
- */
-int sw_item_is(struct sw_item i, unsigned long flags);
+struct sw_tile *sw_world_gettilep(struct sw_world *world, int x, int y);
+/* Shortcut (damn lazy programmers) */
+#define SW_TILEP(world, x, y) (sw_world_gettilep(world, x, y))
+
+void sw_world_draw(struct sw_world *world, int x, int y);
+
+int sw_world_placeobj(struct sw_world *world, struct sw_obj *o, int x, int y);
+int sw_world_placeobjhome(struct sw_world *world, struct sw_obj *o);
+
+struct sw_obj *sw_world_removeobj(struct sw_world *world, int x, int y);
+void sw_world_freeobj(struct sw_world *world, int x, int y);
+void sw_world_freeallobj(struct sw_world *world);
+
+int sw_world_inbounds(struct sw_world *world, int x, int y);
+
+/* These functions trigger object events */
+void sw_world_updateobjs(struct sw_world *world);
+void sw_world_moveobjby(struct sw_world *world, int x, int y, int dx, int dy);
+void sw_world_moveobjto(struct sw_world *world, int x, int y, int nx, int ny);
+void sw_world_interactobj(struct sw_world *world, int x, int y, int nx, int ny);
+void sw_world_attackobj(struct sw_world *world, int x, int y, int nx, int ny);
+
+struct sw_world *sw_world_genstart(void);
 
 #endif

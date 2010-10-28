@@ -1,6 +1,17 @@
 
 #include "switem.h"
 
+
+/* Perhaps later store these into a file?
+ */
+static struct sw_item sw_item_table[] = {
+	/* TYPE			ID	NAME			AMOUNT */
+	{  SW_ITEM_NONE, 	0,	"Nothing",		1},
+	{  SW_ITEM_MATERIAL, 	1,	"Dirt",			1},
+	{  SW_ITEM_MATERIAL, 	2,	"Wood",			1},
+	{  SW_ITEM_WEAPON, 	3,	"Pulverizer",		1},
+};
+
 struct sw_item sw_item_make(unsigned long id)
 {
 	return sw_item_table[id];

@@ -23,41 +23,50 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef SWITEM_H
-#define SWITEM_H
+#ifndef SWOBJ_H
+#define SWOBJ_H
 
-/* Item types.
- */
-#define SW_ITEM_NONE		0
-#define SW_ITEM_WEAPON		(1 << 0)
-#define SW_ITEM_TOOL		(1 << 1)
-#define SW_ITEM_MATERIAL	(1 << 2)
+#include "sandworld.h"
+#include "swrucksack.h"
 
-/* The item!
- */
-struct sw_item {
-	unsigned long flags;
-	int id;
-	const char *name;
-	int amount;
+struct sw_world;
+
+enum sw_obj_ev {
+	SW_OBJ_EV_UPDATE,
+	SW_OBJ_EV_MOVE,
+	SW_OBJ_EV_INTERACT,
+	SW_OBJ_EV_ATTACK,
+	SW_OBJ_EV_TOOL
 };
 
-/* Look up table values.
- */
-enum {
-	/*SW_ITEM_NONE,*/
-	SW_ITEM_DIRT=1,
-	SW_ITEM_WOOD,
-	SW_ITEM_PULVERIZER
+enum sw_obj_type {
+	SW_OBJ_NONE,	/* This can not be interacted with at all. */
+	SW_OBJ_PLAYER,	/* The player! */
+	SW_OBJ_ABYSS,	/* This can be dug into. */
+	SW_OBJ_ITEMS,	/* Simple item batch. */
+	SW_OBJ_TREE,
+	SW_OBJ_BOULDER
 };
 
-/* Create an item based on one of the lookup table values.
- */
-struct sw_item sw_item_make(unsigned long flags);
-int sw_item_areequal(struct sw_item i1, struct sw_item i2);
-int sw_item_isnone(struct sw_item i);
-/* Use item types for the flag.
- */
-int sw_item_is(struct sw_item i, unsigned long flags);
+struct sw_obj {
+	enum sw_obj_type type;
+	attr_t attr;
+	color_t fg;
+	color_t bg;
+	int display;
+	int x;
+	int y;
+	int life;
+	struct sw_tile *tile;
+	struct sw_rucksack rucksack;
+	/* This function returns 0 when a given object event is successful */
+	int (*handle_event) (struct sw_world *,
+		struct sw_obj *, struct sw_obj *, enum sw_obj_ev);
+};
+
+struct sw_obj *sw_obj_alloc(void);
+void sw_obj_free(struct sw_obj *o);
+struct sw_obj *sw_obj_gentype(enum sw_obj_type type);
+int sw_obj_attack(struct sw_obj *def, struct sw_obj *att);
 
 #endif
