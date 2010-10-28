@@ -67,7 +67,7 @@
 #define SW_CMD_SWITCH		'\t'
 #define SW_CMD_ACTION		' '
 #define SW_CMD_QUIT		'q'
-/*#define SW_CMD_RES1		'w'*/
+#define SW_CMD_SELF		'w'
 #define SW_CMD_RUCKSACK		'e'
 #define SW_CMD_ATTACK		'a'
 #define SW_CMD_SWAP		's'

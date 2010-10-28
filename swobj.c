@@ -56,45 +56,48 @@ void sw_obj_takedamage(struct sw_obj *o, int amount)
 
 int sw_obj_attack(struct sw_obj *def, struct sw_obj *att)
 {
-	/* D = rand(a*0.5, a*2) - d*0.5
-	 * if (D <= d*0.5)
-	 * 	miss();
-	 *
-	 * a = 10
-	 * d = 10
-	 * D = rand(5, 20) - 5
-	 * D = rand(0, 15)
-	 * 0-5 = miss
-	 * 6-15 = hit
-	 *
-	 * a = 20
-	 * d = 10
-	 * D = rand(10, 40) - 5
-	 * D = rand(5, 35)
-	 * 0-5 = miss
-	 * 6-35 = hit
-	 *
-	 * a = 10
-	 * d = 20
-	 * D = rand(5, 20) - 10
-	 * D = rand(-5, 10)
-	 * -5-10 = miss
-	 */
 	int power = sw_obj_getpower(att);
 	int resist = sw_obj_getresist(def);
-	int dmg = sw_randint(power >> 1, power << 1) - (resist >> 1);
-
-	if (dmg <= (resist >> 1))
-		return 0;
+	int dmg = sw_randint(power * 0.5, power * 1.5) + (power - resist);
 
 	if (dmg > 0)
 		sw_obj_takedamage(def, dmg);
 
-	return dmg;
+	return dmg <= 0 ? 0 : dmg;
+}
+
+int sw_obj_dmgmin(struct sw_obj *o)
+{
+	/* Assume power and defense are equal. */
+	int power = sw_obj_getpower(o);
+	return power * 0.5;
+}
+
+int sw_obj_dmgmax(struct sw_obj *o)
+{
+	/* Assume power and defense are equal. */
+	int power = sw_obj_getpower(o);
+	return power * 1.5;
 }
 
 void sw_obj_draw(struct sw_obj *o, int x, int y)
 {
 	sw_setfgbg(o->fg, o->bg, o->attr);
 	sw_putch(x, y, o->display);
+}
+
+void sw_obj_showstats(struct sw_obj *o)
+{
+	sw_setfg(SW_BLACK);
+	sw_clearlineto(1, 0, SW_COLS/2 - 1);
+	sw_clearlineto(2, 0, SW_COLS/2 - 1);
+	sw_clearlineto(3, 0, SW_COLS/2 - 1);
+	sw_setfg(SW_WHITE);
+	sw_putstr(1, 1, "Life: %d", o->life);
+	sw_putstr(1, 2, "Power: %d (%d to %d)", sw_obj_getpower(o),
+		sw_obj_dmgmin(o), sw_obj_dmgmax(o));
+	sw_putstr(1, 3, "Resist: %d", sw_obj_getresist(o));
+	sw_box(0, 0, SW_COLS/2 - 1, 3 + 2);
+
+	sw_getcmd();
 }
