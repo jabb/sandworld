@@ -60,20 +60,21 @@
 #define SW_CMD_DOWN		KEY_DOWN
 #define SW_CMD_LEFT		KEY_LEFT
 #define SW_CMD_RIGHT		KEY_RIGHT
-#define SW_CMD_UP2		'k'
-#define SW_CMD_DOWN2		'j'
-#define SW_CMD_LEFT2		'h'
-#define SW_CMD_RIGHT2		'l'
-#define SW_CMD_SWITCH		'\t'
-#define SW_CMD_ACTION		' '
-#define SW_CMD_QUIT		'q'
-#define SW_CMD_SELF		'w'
-#define SW_CMD_RUCKSACK		'e'
-#define SW_CMD_ATTACK		'a'
-#define SW_CMD_SWAP		's'
-#define SW_CMD_DROP		'd'
+#define SW_CMD_UP2		'k'		/* Another way to move left. */
+#define SW_CMD_DOWN2		'j'		/* Another way to move down. */
+#define SW_CMD_LEFT2		'h'		/* Another way to move up. */
+#define SW_CMD_RIGHT2		'l'		/* Another way to move right. */
+#define SW_CMD_SWITCH		'\t'		/* Switch menu panels. */
+#define SW_CMD_ACTION		' '		/* Perform action or close. */
+#define SW_CMD_QUIT		'q'		/* Quit anything. */
+#define SW_CMD_SELF		'w'		/* Info on self or selected. */
+#define SW_CMD_RUCKSACK		'e'		/* Rucksack of self. */
+#define SW_CMD_ATTACK		'a'		/* Attack something. */
+#define SW_CMD_SWAP		's'		/* Spawn character or item. */
+#define SW_CMD_DROP		'd'		/* Drop item (outside menu). */
+#define SW_CMD_INFO		'f'		/* Info on other objects. */
 /*#define SW_CMD_SKILL		'z'*/
-#define SW_CMD_TOOL		'x'
+#define SW_CMD_TOOL		'x'		/* Use a tool on something. */
 /*#define SW_CMD_CREATE		'c'*/
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
