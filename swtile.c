@@ -34,10 +34,11 @@ void sw_tile_walkon(struct sw_tile tile, struct sw_obj *obj)
 
 void sw_tile_draw(struct sw_tile tile, int x, int y)
 {
-	sw_setfgbg(tile.fg, tile.bg, tile.attr);
-	sw_putch(x, y, tile.display);
 	if (tile.object) {
-		sw_setfgbg(tile.object->fg, tile.object->bg, tile.object->attr);
-		sw_putch(x, y, tile.object->display);
+		sw_obj_draw(tile.object, x, y);
+	}
+	else {
+		sw_setfgbg(tile.fg, tile.bg, tile.attr);
+		sw_putch(x, y, tile.display);
 	}
 }

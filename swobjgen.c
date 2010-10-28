@@ -188,7 +188,7 @@ struct sw_obj *sw_obj_gentype(enum sw_obj_type type)
 		o->fg = SW_BLACK;
 		o->display = 'o';
 		o->life = 2;
-		o->resist = 3
+		o->resist = 3;
 		o->handle_event = boulder_handleevent;
 		break;
 	default:

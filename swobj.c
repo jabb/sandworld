@@ -92,3 +92,9 @@ int sw_obj_attack(struct sw_obj *def, struct sw_obj *att)
 
 	return dmg;
 }
+
+void sw_obj_draw(struct sw_obj *o, int x, int y)
+{
+	sw_setfgbg(o->fg, o->bg, o->attr);
+	sw_putch(x, y, o->display);
+}
