@@ -56,12 +56,17 @@ static int abyss_handleevent(struct sw_world *world,
 		sw_world_placeobj(world, sw_obj_gentype(SW_OBJ_ITEMS), x, y);
 		return 0; /* Dig succeeded. */
 	case SW_OBJ_EV_ATTACK:
-		sw_ui_addalert("Abyss is tough stuff, but you're tougher.");
 		sw_obj_attack(self, from);
 		if (self->life <= 0) {
+			sw_ui_addalert("Abyss is tough stuff, but you're "
+				"tougher.");
 			x = self->x;
 			y = self->y;
 			sw_world_freeobj(world, self->x, self->y);
+		}
+		else {
+			sw_ui_addalert("I dunno... do you really want to attack"
+				" abyss?");
 		}
 	default:
 		return -1;
@@ -83,8 +88,8 @@ static int tree_handleevent(struct sw_world *world,
 		return -1; /* Return -1 saying, "you can't move here yet" */
 	case SW_OBJ_EV_ATTACK:
 		sw_obj_attack(self, from);
-		sw_ui_addalert("You deal a feirce blow to the tree!");
 		if (self->life <= 0) {
+			sw_ui_addalert("You deal a feirce blow to the tree!");
 			x = self->x;
 			y = self->y;
 			sw_world_freeobj(world, self->x, self->y);
@@ -94,7 +99,7 @@ static int tree_handleevent(struct sw_world *world,
 			sw_world_placeobj(world, tmpobj, x, y);
 		}
 		else {
-			sw_ui_addalert("It remains standing.");
+			sw_ui_addalert("Bark IS stronger than bite!");
 		}
 		return 0;
 	case SW_OBJ_EV_INTERACT:
@@ -121,10 +126,10 @@ static int boulder_handleevent(struct sw_world *world,
 		sw_ui_addalert("Mighty big boulder there.");
 		return 0; /* Object interaction always succeeeds? */
 	case SW_OBJ_EV_ATTACK:
-		sw_ui_addalert("You injure yourself on the boulder,"
-			"but it cracks.");
 		sw_obj_attack(self, from);
 		if (self->life <= 0) {
+			sw_ui_addalert("You injure yourself on the boulder,"
+				"but it cracks.");
 			x = self->x;
 			y = self->y;
 			sw_world_freeobj(world, self->x, self->y);
@@ -132,6 +137,9 @@ static int boulder_handleevent(struct sw_world *world,
 			sw_rucksack_additem(&tmpobj->rucksack,
 				sw_item_make(SW_ITEM_DIRT));
 			sw_world_placeobj(world, tmpobj, x, y);
+		}
+		else {
+			sw_ui_addalert("You smack the boulder helplessly.");
 		}
 		return 0;
 	default:
@@ -179,6 +187,8 @@ struct sw_obj *sw_obj_gentype(enum sw_obj_type type)
 		o->attr = SW_ATTR_BRIGHT;
 		o->fg = SW_BLACK;
 		o->display = 'o';
+		o->life = 2;
+		o->resist = 3
 		o->handle_event = boulder_handleevent;
 		break;
 	default:

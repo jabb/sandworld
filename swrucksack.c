@@ -31,15 +31,14 @@ int sw_rucksack_takenslots(struct sw_rucksack *rs)
 	return SW_RUCKSACK_SIZE - sw_rucksack_freeslots(rs);
 }
 
-int sw_rucksack_iswielding(struct sw_rucksack *rs)
+int sw_rucksack_iswielding(struct sw_rucksack *rs, unsigned long flag)
 {
-	/* TODO: Clean up (remove `items` direct access) */
-	return sw_item_is(rs->items[SW_INHAND_POS], SW_ITEM_WEAPON) ||
-		sw_item_is(rs->items[SW_INHAND_POS], SW_ITEM_TOOL);
+	return sw_item_is(*SW_ITEMP(rs, SW_INHAND_POS), flag);
 }
 
-int sw_rucksack_iswearing(struct sw_rucksack *rs)
+int sw_rucksack_iswearing(struct sw_rucksack *rs, unsigned long flag)
 {
+	/* TODO: Implement wearing stuff. */
 	return 0;
 }
 
@@ -82,8 +81,8 @@ int sw_rucksack_addrucksack(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 void sw_rucksack_swap(struct sw_rucksack *rs, int pos1, int pos2)
 {
 	struct sw_item tmp = *SW_ITEMP(rs, pos2);
-	*SW_ITEMP(rs, pos1) = *SW_ITEMP(rs, pos2);
-	*SW_ITEMP(rs, pos2) = tmp;
+	*SW_ITEMP(rs, pos2) = *SW_ITEMP(rs, pos1);
+	*SW_ITEMP(rs, pos1) = tmp;
 }
 
 

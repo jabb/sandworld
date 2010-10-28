@@ -57,6 +57,8 @@ struct sw_obj {
 	int x;
 	int y;
 	int life;
+	int power;
+	int resist;
 	struct sw_tile *tile;
 	struct sw_rucksack rucksack;
 	/* This function returns 0 when a given object event is successful */

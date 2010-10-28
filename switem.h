@@ -40,6 +40,9 @@ struct sw_item {
 	int id;
 	const char *name;
 	int amount;
+	int power;	/* Attack or something. */
+	int resist;	/* Defense or something. */
+	int uses;	/* Durabibility or something. :P */
 };
 
 /* Look up table values.

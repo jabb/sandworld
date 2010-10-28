@@ -50,8 +50,8 @@ int sw_rucksack_empty(struct sw_rucksack *rs);
 int sw_rucksack_freeslots(struct sw_rucksack *rs);
 int sw_rucksack_takenslots(struct sw_rucksack *rs);
 
-int sw_rucksack_iswielding(struct sw_rucksack *rs);
-int sw_rucksack_iswearing(struct sw_rucksack *rs);
+int sw_rucksack_iswielding(struct sw_rucksack *rs, unsigned long flag);
+int sw_rucksack_iswearing(struct sw_rucksack *rs, unsigned long flag);
 
 int sw_rucksack_additem(struct sw_rucksack *rs, struct sw_item item);
 int sw_rucksack_addrucksack(struct sw_rucksack *rs, struct sw_rucksack *rs2);
