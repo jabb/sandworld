@@ -12,7 +12,7 @@ int sw_rucksack_empty(struct sw_rucksack *rs)
 {
 	int i;
 	for (i = 0; i < SW_RUCKSACK_SIZE; ++i)
-		*SW_ITEMP(rs, i) = sw_item_make(SW_ITEM_NONE);
+		*SW_ITEMP(rs, i) = sw_item_gen(SW_ITEM_NONE);
 	return 0;
 }
 
@@ -71,7 +71,7 @@ int sw_rucksack_addrucksack(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 	for (i = 0; i < SW_RUCKSACK_SIZE; ++i) {
 		if (!sw_item_isnone(*SW_ITEMP(rs, i))) {
 			sw_rucksack_additem(rs, *SW_ITEMP(rs2, i));
-			*SW_ITEMP(rs2, i) = sw_item_make(SW_ITEM_NONE);
+			*SW_ITEMP(rs2, i) = sw_item_gen(SW_ITEM_NONE);
 		}
 	}
 
@@ -138,7 +138,7 @@ struct sw_item sw_rucksack_removeitem(struct sw_rucksack *rs, int pos)
 {
 	struct sw_item item;
 	item = *SW_ITEMP(rs, pos);
-	*SW_ITEMP(rs, pos) = sw_item_make(SW_ITEM_NONE);
+	*SW_ITEMP(rs, pos) = sw_item_gen(SW_ITEM_NONE);
 	return item;
 }
 

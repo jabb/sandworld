@@ -38,8 +38,9 @@ void sw_obj_free(struct sw_obj *o)
 int sw_obj_getpower(struct sw_obj *o)
 {
 	int p = o->power;
-	if (sw_rucksack_iswielding(&o->rucksack, SW_ITEM_WEAPON))
-		p += sw_rucksack_getitemp(&o->rucksack, SW_INHAND_POS)->power;
+	if (sw_rucksack_iswielding(&o->rucksack, SW_ITEM_TYPE_WEAPON))
+		p += sw_rucksack_getitemp(&o->rucksack,
+			SW_INHAND_POS)->cur_power;
 	return p;
 }
 

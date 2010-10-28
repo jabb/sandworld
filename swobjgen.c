@@ -89,7 +89,7 @@ static int tree_handleevent(struct sw_world *world,
 			sw_world_freeobj(world, self->x, self->y);
 			tmpobj = sw_obj_gentype(SW_OBJ_ITEMS);
 			sw_rucksack_additem(&tmpobj->rucksack,
-				sw_item_make(SW_ITEM_WOOD));
+				sw_item_gen(SW_ITEM_WOOD));
 			sw_world_placeobj(world, tmpobj, x, y);
 		}
 		else {
@@ -131,7 +131,7 @@ static int boulder_handleevent(struct sw_world *world,
 			sw_world_freeobj(world, self->x, self->y);
 			tmpobj = sw_obj_gentype(SW_OBJ_ITEMS);
 			sw_rucksack_additem(&tmpobj->rucksack,
-				sw_item_make(SW_ITEM_DIRT));
+				sw_item_gen(SW_ITEM_DIRT));
 			sw_world_placeobj(world, tmpobj, x, y);
 		}
 		else {

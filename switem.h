@@ -28,35 +28,42 @@
 
 /* Item types.
  */
-#define SW_ITEM_NONE		0
-#define SW_ITEM_WEAPON		(1 << 0)
-#define SW_ITEM_TOOL		(1 << 1)
-#define SW_ITEM_MATERIAL	(1 << 2)
+#define SW_ITEM_TYPE_NONE		(1 << 0)
+#define SW_ITEM_TYPE_WEAPON		(1 << 1)
+#define SW_ITEM_TYPE_TOOL		(1 << 2)
+#define SW_ITEM_TYPE_MATERIAL		(1 << 3)
+
+#define SW_ITEM_NAME_LEN	32
 
 /* The item!
  */
 struct sw_item {
 	unsigned long flags;
 	int id;
-	const char *name;
+	char name[SW_ITEM_NAME_LEN];
 	int amount;
-	int power;	/* Attack or something. */
-	int resist;	/* Defense or something. */
-	int uses;	/* Durabibility or something. :P */
+	int max_power;
+	int cur_power;	/* Attack or something. */
+	int max_resist;
+	int cur_resist;	/* Defense or something. */
+	int max_uses;
+	int cur_uses;	/* Durabibility or something. :P */
 };
 
 /* Look up table values.
  */
 enum {
-	/*SW_ITEM_NONE,*/
-	SW_ITEM_DIRT=1,
+	SW_ITEM_NONE = 0,
+	SW_ITEM_DIRT,
 	SW_ITEM_WOOD,
 	SW_ITEM_PULVERIZER
 };
 
+int sw_item_inittable(void);
+
 /* Create an item based on one of the lookup table values.
  */
-struct sw_item sw_item_make(unsigned long flags);
+struct sw_item sw_item_gen(unsigned long tabid);
 int sw_item_areequal(struct sw_item i1, struct sw_item i2);
 int sw_item_isnone(struct sw_item i);
 /* Use item types for the flag.

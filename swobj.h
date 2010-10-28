@@ -71,5 +71,6 @@ void sw_obj_free(struct sw_obj *o);
 struct sw_obj *sw_obj_gentype(enum sw_obj_type type);
 int sw_obj_attack(struct sw_obj *def, struct sw_obj *att);
 void sw_obj_draw(struct sw_obj *o, int x, int y);
+void sw_obj_showstats(struct sw_obj *o);
 
 #endif

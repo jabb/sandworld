@@ -78,6 +78,7 @@ int sw_start(void)
 			}
 
 	sw_seed(time(NULL));
+	sw_item_inittable();
 
 	goto success;
 failure:
@@ -104,14 +105,17 @@ int main(int argc, char *argv[])
 	int cmd = 0;
 	struct sw_item tmpitem;
 	struct sw_obj *tmpobj = NULL;
-	struct sw_world *world = sw_world_genstart();
-	struct sw_obj *player = sw_obj_gentype(SW_OBJ_PLAYER);
+	struct sw_world *world = NULL;
+	struct sw_obj *player = NULL;
 
 	sw_start();
 
+	world = sw_world_genstart();
+	player = sw_obj_gentype(SW_OBJ_PLAYER);
+
 	sw_world_placeobjhome(world, player);
-	sw_rucksack_additem(&player->rucksack, sw_item_make(SW_ITEM_DIRT));
-	sw_rucksack_additem(&player->rucksack, sw_item_make(SW_ITEM_DIRT));
+	sw_rucksack_additem(&player->rucksack, sw_item_gen(SW_ITEM_DIRT));
+	sw_rucksack_additem(&player->rucksack, sw_item_gen(SW_ITEM_DIRT));
 
 	do {
 		switch (cmd) {
