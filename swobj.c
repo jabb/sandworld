@@ -22,7 +22,7 @@ struct sw_obj *sw_obj_alloc(void)
 	o->x = -1;
 	o->y = -1;
 	o->life = 1;
-	o->power = 1;
+	o->power = 0;
 	o->resist = 0;
 	o->tile = NULL;
 	o->handle_event = blank_handleevent;
@@ -97,6 +97,7 @@ void sw_obj_showstats(struct sw_obj *o)
 	sw_putstr(1, 2, "Power: %d (%d to %d)", sw_obj_getpower(o),
 		sw_obj_dmgmin(o), sw_obj_dmgmax(o));
 	sw_putstr(1, 3, "Resist: %d", sw_obj_getresist(o));
+	sw_setfg(SW_BLUE);
 	sw_box(0, 0, SW_COLS/2 - 1, 3 + 2);
 
 	sw_getcmd();

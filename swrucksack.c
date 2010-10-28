@@ -209,6 +209,11 @@ void sw_rucksack_show(struct sw_rucksack *rs)
 				sw_setfg(SW_WHITE);
 				sw_putstr(1, i + 1, "%d", i);
 			}
+
+			if (i == SW_INHAND_POS)
+				sw_putstr(3, i + 1, "WEP");
+			else if (i == SW_ONSELF_POS)
+				sw_putstr(3, i + 1, "ARM");
 		}
 
 		cmd = sw_getcmd();
@@ -287,6 +292,11 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 				sw_setfg(SW_WHITE);
 				sw_putstr(1, i + 1, "%d", i);
 			}
+
+			if (i == SW_INHAND_POS)
+				sw_putstr(3, i + 1, "WEP");
+			else if (i == SW_ONSELF_POS)
+				sw_putstr(3, i + 1, "ARM");
 
 			/* Second rucksack. */
 			if (i == sel && which == 1) {
