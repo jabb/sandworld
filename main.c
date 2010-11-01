@@ -78,7 +78,7 @@ int sw_start(void)
 			}
 
 	sw_seed(time(NULL));
-	sw_item_inittable();
+	sw_item_alloctables();
 
 	goto success;
 failure:
@@ -89,6 +89,7 @@ success:
 
 void sw_stop(void)
 {
+	sw_item_freetables();
 	endwin();
 }
 

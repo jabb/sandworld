@@ -21,9 +21,12 @@ struct sw_obj *sw_obj_alloc(void)
 	o->display = ' ';
 	o->x = -1;
 	o->y = -1;
-	o->life = 1;
-	o->power = 0;
-	o->resist = 0;
+	o->cur_life = 1;
+	o->max_life = 1;
+	o->cur_power = 0;
+	o->max_power = 0;
+	o->cur_resist = 0;
+	o->max_resist = 0;
 	o->tile = NULL;
 	o->handle_event = blank_handleevent;
 	sw_rucksack_empty(&o->rucksack);
@@ -35,24 +38,28 @@ void sw_obj_free(struct sw_obj *o)
 	free(o);
 }
 
+int sw_obj_isdestroyed(struct sw_obj *o)
+{
+	return o->cur_life <= 0;
+}
+
 int sw_obj_getpower(struct sw_obj *o)
 {
-	int p = o->power;
+	int p = o->cur_power;
 	if (sw_rucksack_iswielding(&o->rucksack, SW_ITEM_TYPE_WEAPON))
-		p += sw_rucksack_getitemp(&o->rucksack,
-			SW_INHAND_POS)->cur_power;
+		p += sw_rucksack_getitemp(&o->rucksack, SW_INHAND_POS)->power;
 	return p;
 }
 
 int sw_obj_getresist(struct sw_obj *o)
 {
-	int r = o->resist;
+	int r = o->cur_resist;
 	return r;
 }
 
 void sw_obj_takedamage(struct sw_obj *o, int amount)
 {
-	o->life -= amount;
+	o->cur_life -= amount;
 }
 
 int sw_obj_attack(struct sw_obj *def, struct sw_obj *att)
@@ -94,7 +101,7 @@ void sw_obj_showstats(struct sw_obj *o)
 	sw_clearlineto(2, 0, SW_COLS/2 - 1);
 	sw_clearlineto(3, 0, SW_COLS/2 - 1);
 	sw_setfg(SW_WHITE);
-	sw_putstr(1, 1, "Life: %d", o->life);
+	sw_putstr(1, 1, "Life: %d / %d", o->cur_life, o->max_life);
 	sw_putstr(1, 2, "Power: %d (%d to %d)", sw_obj_getpower(o),
 		sw_obj_dmgmin(o), sw_obj_dmgmax(o));
 	sw_putstr(1, 3, "Resist: %d", sw_obj_getresist(o));

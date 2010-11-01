@@ -49,7 +49,7 @@ static int abyss_handleevent(struct sw_world *world,
 		return 0; /* Dig succeeded. */
 	case SW_OBJ_EV_ATTACK:
 		dmg = sw_obj_attack(self, from);
-		if (self->life <= 0) {
+		if (sw_obj_isdestroyed(self)) {
 			sw_ui_addalert("Abyss is tough stuff, but you're "
 				"tougher. (%d dmg)", dmg);
 			x = self->x;
@@ -81,7 +81,7 @@ static int tree_handleevent(struct sw_world *world,
 		return -1; /* Return -1 saying, "you can't move here yet" */
 	case SW_OBJ_EV_ATTACK:
 		dmg = sw_obj_attack(self, from);
-		if (self->life <= 0) {
+		if (sw_obj_isdestroyed(self)) {
 			sw_ui_addalert("You deal a feirce blow to the tree! "
 				"(%d dmg)", dmg);
 			x = self->x;
@@ -123,7 +123,7 @@ static int boulder_handleevent(struct sw_world *world,
 		return 0; /* Object interaction always succeeeds? */
 	case SW_OBJ_EV_ATTACK:
 		dmg = sw_obj_attack(self, from);
-		if (self->life <= 0) {
+		if (sw_obj_isdestroyed(self)) {
 			sw_ui_addalert("You injure yourself on the boulder, "
 				"but it cracks. (%d dmg)", dmg);
 			x = self->x;
@@ -184,8 +184,10 @@ struct sw_obj *sw_obj_gentype(enum sw_obj_type type)
 		o->attr = SW_ATTR_BRIGHT;
 		o->fg = SW_BLACK;
 		o->display = 'o';
-		o->life = 2;
-		o->resist = 3;
+		o->cur_life = 2;
+		o->max_life = 2;
+		o->cur_resist = 3;
+		o->max_resist = 3;
 		o->handle_event = boulder_handleevent;
 		break;
 	default:

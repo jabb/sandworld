@@ -56,9 +56,12 @@ struct sw_obj {
 	int display;
 	int x;
 	int y;
-	int life;
-	int power;
-	int resist;
+	int max_life;
+	int cur_life;
+	int max_power;
+	int cur_power;
+	int max_resist;
+	int cur_resist;
 	struct sw_tile *tile;
 	struct sw_rucksack rucksack;
 	/* This function returns 0 when a given object event is successful */
@@ -69,7 +72,13 @@ struct sw_obj {
 struct sw_obj *sw_obj_alloc(void);
 void sw_obj_free(struct sw_obj *o);
 struct sw_obj *sw_obj_gentype(enum sw_obj_type type);
+int sw_obj_isdestroyed(struct sw_obj *o);
+int sw_obj_getpower(struct sw_obj *o);
+int sw_obj_getresist(struct sw_obj *o);
+void sw_obj_takedamage(struct sw_obj *o, int amount);
 int sw_obj_attack(struct sw_obj *def, struct sw_obj *att);
+int sw_obj_dmgmin(struct sw_obj *o);
+int sw_obj_dmgmax(struct sw_obj *o);
 void sw_obj_draw(struct sw_obj *o, int x, int y);
 void sw_obj_showstats(struct sw_obj *o);
 

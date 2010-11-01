@@ -42,10 +42,8 @@ struct sw_item {
 	int id;
 	char name[SW_ITEM_NAME_LEN];
 	int amount;
-	int max_power;
-	int cur_power;	/* Attack or something. */
-	int max_resist;
-	int cur_resist;	/* Defense or something. */
+	int power;
+	int resist;
 	int max_uses;
 	int cur_uses;	/* Durabibility or something. :P */
 };
@@ -55,11 +53,13 @@ struct sw_item {
 enum {
 	SW_ITEM_NONE = 0,
 	SW_ITEM_DIRT,
+	SW_ITEM_DIRTBALL,
 	SW_ITEM_WOOD,
 	SW_ITEM_PULVERIZER
 };
 
-int sw_item_inittable(void);
+int sw_item_alloctables(void);
+void sw_item_freetables(void);
 
 /* Create an item based on one of the lookup table values.
  */
@@ -69,5 +69,8 @@ int sw_item_isnone(struct sw_item i);
 /* Use item types for the flag.
  */
 int sw_item_is(struct sw_item i, unsigned long flags);
+
+struct sw_item sw_item_create(struct sw_item tool, struct sw_item on,
+	struct sw_item with);
 
 #endif
