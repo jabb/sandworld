@@ -21,7 +21,9 @@ struct create_node {
 	int resid;
 	int resamount;
 	struct create_node *next;
-} *create_list = NULL;
+};
+
+static struct create_node *create_list = NULL;
 
 static int add_to_itemtable(unsigned long flags, const char *name, int amount,
 	int power, int resist, int uses)
@@ -50,7 +52,7 @@ static int add_to_createtable(int toolid, int onid, int onamount, int withid,
 {
 	struct create_node *iter = NULL;
 
-	if (create_list) {
+	if (!create_list) {
 		create_list = malloc(sizeof(struct create_node));
 
 		if (!create_list)
