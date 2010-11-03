@@ -75,7 +75,7 @@
 #define SW_CMD_INFO		'f'		/* Info on other objects. */
 /*#define SW_CMD_SKILL		'z'*/
 #define SW_CMD_TOOL		'x'		/* Use a tool on something. */
-/*#define SW_CMD_CREATE		'c'*/
+#define SW_CMD_CREATE		'c'
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) > (b) ? (b) : (a))

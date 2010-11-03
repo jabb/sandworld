@@ -1,5 +1,6 @@
 
 #include "swobj.h"
+#include "swui.h"
 #include "swworld.h"
 
 struct sw_world *sw_world_alloc(void)
@@ -150,16 +151,16 @@ void sw_world_moveobjto(struct sw_world *world, int x, int y, int nx, int ny)
 		return;
 
 	o = SW_TILEP(world, x, y)->object;
-	dest_o = world->tiles[nx][ny].object;
+	dest_o = SW_TILEP(world, nx, ny)->object;
 
 	if (!o || o == dest_o) {
 		return;
+	} else if (!dest_o) {
+		sw_world_nullobj(world, nx, ny, o, SW_OBJ_EV_MOVE);
 	} else if (dest_o && dest_o->handle_event) {
 		/* Fail to move only if handling the event failed. */
 		if (dest_o->handle_event(world, dest_o, o, SW_OBJ_EV_MOVE) != 0)
 			return; /* Fail */
-	} else if (dest_o) {
-		return;
 	}
 
 	sw_world_removeobj(world, x, y);
@@ -178,14 +179,14 @@ void sw_world_interactobj(struct sw_world *world, int x, int y, int nx, int ny)
 		return;
 
 	o = SW_TILEP(world, x, y)->object;
-	dest_o = world->tiles[nx][ny].object;
+	dest_o = SW_TILEP(world, nx, ny)->object;
 
 	if (!o || o == dest_o) {
 		return;
+	} else if (!dest_o) {
+		sw_world_nullobj(world, nx, ny, o, SW_OBJ_EV_INTERACT);
 	} else if (dest_o && dest_o->handle_event) {
 		dest_o->handle_event(world, dest_o, o, SW_OBJ_EV_INTERACT);
-	} else if (dest_o) {
-		return;
 	}
 }
 
@@ -199,14 +200,52 @@ void sw_world_attackobj(struct sw_world *world, int x, int y, int nx, int ny)
 		return;
 
 	o = SW_TILEP(world, x, y)->object;
-	dest_o = world->tiles[nx][ny].object;
+	dest_o = SW_TILEP(world, nx, ny)->object;
 
 	if (!o || o == dest_o) {
 		return;
+	} else if (!dest_o) {
+		sw_world_nullobj(world, nx, ny, o, SW_OBJ_EV_ATTACK);
 	} else if (dest_o && dest_o->handle_event) {
 		dest_o->handle_event(world, dest_o, o, SW_OBJ_EV_ATTACK);
-	} else if (dest_o) {
+	}
+}
+
+void sw_world_toolobj(struct sw_world *world, int x, int y, int nx, int ny)
+{
+	struct sw_obj *o = NULL;
+	struct sw_obj *dest_o = NULL;
+
+	if (!sw_world_inbounds(world, nx, ny))
 		return;
+
+	o = SW_TILEP(world, x, y)->object;
+	dest_o = SW_TILEP(world, nx, ny)->object;
+
+	if (!o || o == dest_o) {
+		return;
+	} else if (!dest_o) {
+		sw_world_nullobj(world, nx, ny, o, SW_OBJ_EV_TOOL);
+	} else if (dest_o && dest_o->handle_event) {
+		dest_o->handle_event(world, dest_o, o, SW_OBJ_EV_TOOL);
+	}
+}
+
+void sw_world_nullobj(struct sw_world *world, int x, int y, struct sw_obj *o,
+	enum sw_obj_ev ev)
+{
+	switch (ev) {
+	case SW_OBJ_EV_ATTACK:
+		sw_ui_addalert("Nothing to attack!");
+		break;
+	case SW_OBJ_EV_INTERACT:
+		sw_ui_addalert("Nothing to interact with!");
+		break;
+	case SW_OBJ_EV_TOOL:
+
+		break;
+	default:
+		break;
 	}
 }
 

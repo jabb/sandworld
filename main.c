@@ -171,11 +171,23 @@ int main(int argc, char *argv[])
 					player->x + dx, player->y + dy);
 			}
 			break;
+		case SW_CMD_TOOL:
+			tmpcmd = sw_ui_getdir("Use tool on what?");
+			if (tmpcmd != SW_CMD_NONE) {
+				sw_getdelta(tmpcmd, &dx, &dy);
+				sw_world_toolobj(world,
+					player->x, player->y,
+					player->x + dx, player->y + dy);
+			}
+			break;
 		case SW_CMD_SELF:
 			sw_obj_showstats(player);
 			break;
 		case SW_CMD_RUCKSACK:
 			sw_rucksack_show(&player->rucksack);
+			break;
+		case SW_CMD_CREATE:
+			sw_ui_addalert("Not implemented");
 			break;
 		case SW_CMD_QUIT:
 			if (sw_ui_confirm("Are you sure? (y/n)"))

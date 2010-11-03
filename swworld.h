@@ -65,6 +65,10 @@ void sw_world_moveobjby(struct sw_world *world, int x, int y, int dx, int dy);
 void sw_world_moveobjto(struct sw_world *world, int x, int y, int nx, int ny);
 void sw_world_interactobj(struct sw_world *world, int x, int y, int nx, int ny);
 void sw_world_attackobj(struct sw_world *world, int x, int y, int nx, int ny);
+void sw_world_toolobj(struct sw_world *world, int x, int y, int nx, int ny);
+
+void sw_world_nullobj(struct sw_world *world, int x, int y, struct sw_obj *o,
+	enum sw_obj_ev ev);
 
 struct sw_world *sw_world_genstart(void);
 
