@@ -93,6 +93,7 @@ int sw_item_alloctables(void)
 {
 	add_to_itemtable(SW_ITEM_TYPE_NONE, "Nothing", 1, 0, 0, 0);
 	add_to_itemtable(SW_ITEM_TYPE_MATERIAL, "Dirt", 1, 0, 0, 0);
+	add_to_itemtable(SW_ITEM_TYPE_MATERIAL, "Tree Seed", 1, 0, 0, 0);
 	add_to_itemtable(SW_ITEM_TYPE_MATERIAL, "Dirt Ball", 1, 0, 0, 0);
 	add_to_itemtable(SW_ITEM_TYPE_MATERIAL, "Wood", 1, 0, 0, 0);
 	add_to_itemtable(SW_ITEM_TYPE_WEAPON, "Pulverizer", 1, 5, 0, 0);

@@ -27,6 +27,35 @@ static int items_handleevent(struct sw_world *world,
 	return -1;
 }
 
+static void abyss_drop(struct sw_world *world, int x, int y)
+{
+	const int NONE_CHANCE = 95;
+	const int DIRT_CHANCE = 3 + NONE_CHANCE;
+	const int TREESEED_CHANCE = 2 + DIRT_CHANCE;
+	int i, r;
+	struct sw_item item;
+	struct sw_obj *o = sw_obj_gentype(SW_OBJ_ITEMS);
+
+	for (i = 0; i < 10; ++i) {
+		r = sw_randint(1, 100);
+
+		if (r < NONE_CHANCE) {
+			item = sw_item_gen(SW_ITEM_NONE);
+		} else if (r < DIRT_CHANCE) {
+			item = sw_item_gen(SW_ITEM_DIRT);
+		} else if (r < TREESEED_CHANCE) {
+			item = sw_item_gen(SW_ITEM_TREESEED);
+		} else {
+			item = sw_item_gen(SW_ITEM_NONE);
+		}
+
+		sw_rucksack_additem(&o->rucksack, item);
+	}
+
+	if (sw_rucksack_takenslots(&o->rucksack) > 0)
+		sw_world_placeobj(world, o, x, y);
+}
+
 static int abyss_handleevent(struct sw_world *world,
 	struct sw_obj *self, struct sw_obj *from, enum sw_obj_ev ev)
 {
@@ -55,6 +84,7 @@ static int abyss_handleevent(struct sw_world *world,
 			x = self->x;
 			y = self->y;
 			sw_world_freeobj(world, self->x, self->y);
+			abyss_drop(world, self->x, self->y);
 		}
 		else {
 			sw_ui_addalert("I dunno... do you really want to attack"
