@@ -19,6 +19,7 @@ struct sw_obj *sw_obj_alloc(void)
 	o->fg = SW_BLACK;
 	o->bg = SW_BLACK;
 	o->display = ' ';
+	o->name = "?";
 	o->x = -1;
 	o->y = -1;
 	o->cur_life = 1;
@@ -97,17 +98,13 @@ void sw_obj_draw(struct sw_obj *o, int x, int y)
 
 void sw_obj_showstats(struct sw_obj *o)
 {
-	sw_setfg(SW_BLACK);
-	sw_clearlineto(1, 0, SW_COLS/2 - 1);
-	sw_clearlineto(2, 0, SW_COLS/2 - 1);
-	sw_clearlineto(3, 0, SW_COLS/2 - 1);
-	sw_setfg(SW_WHITE);
-	sw_putstr(1, 1, "Life: %d / %d", o->cur_life, o->max_life);
-	sw_putstr(1, 2, "Power: %d (%d to %d)", sw_obj_getpower(o),
-		sw_obj_dmgmin(o), sw_obj_dmgmax(o));
-	sw_putstr(1, 3, "Resist: %d", sw_obj_getresist(o));
 	sw_setfg(SW_BLUE);
-	sw_box(0, 0, SW_COLS/2 - 1, 3 + 2);
-
-	sw_getcmd();
+	sw_clearinfo();
+	sw_addinfo("%s", o->name);
+	sw_addinfo("--------------------------------");
+	sw_addinfo("Life: %d / %d", o->cur_life, o->max_life);
+	sw_addinfo("Power: %d (%d to %d)", sw_obj_getpower(o), sw_obj_dmgmin(o),
+		sw_obj_dmgmax(o));
+	sw_addinfo("Resist: %d", sw_obj_getresist(o));
+	sw_infobox(0, 0);
 }

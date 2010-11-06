@@ -159,12 +159,13 @@ struct sw_item sw_item_create(struct sw_item tool, struct sw_item on,
 	return sw_item_gen(SW_ITEM_NONE);
 }
 
-void sw_item_draw(struct sw_item i, int x, int y)
+void sw_item_showstats(struct sw_item i)
 {
+	sw_setfg(SW_BLUE);
 	sw_clearinfo();
-	sw_logmsg("%d %d %s", i.power, i.resist, i.name);
 	sw_addinfo("%s", i.name);
+	sw_addinfo("--------------------------------");
 	sw_addinfo("Power: %d", i.power);
 	sw_addinfo("Resist: %d", i.resist);
-	sw_infobox(x, y);
+	sw_infobox(0, 0);
 }

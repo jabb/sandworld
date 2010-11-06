@@ -184,18 +184,21 @@ struct sw_obj *sw_obj_gentype(enum sw_obj_type type)
 		o->fg = SW_BLACK;
 		o->display = ';';
 		o->handle_event = abyss_handleevent;
+		o->name = "Abyss";
 		break;
 	case SW_OBJ_PLAYER:
 		o->type = SW_OBJ_PLAYER;
 		o->attr = SW_ATTR_NONE;
 		o->fg = SW_RED;
 		o->display = '@';
+		o->name = "Player";
 		break;
 	case SW_OBJ_ITEMS:
 		o->type = SW_OBJ_ITEMS;
 		o->fg = SW_YELLOW;
 		o->display = ',';
 		o->handle_event = items_handleevent;
+		o->name = "Items";
 		break;
 	case SW_OBJ_TREE:
 		o->type = SW_OBJ_TREE;
@@ -203,6 +206,7 @@ struct sw_obj *sw_obj_gentype(enum sw_obj_type type)
 		o->fg = SW_GREEN;
 		o->display = 'T';
 		o->handle_event = tree_handleevent;
+		o->name = "Tree";
 		break;
 	case SW_OBJ_BOULDER:
 		o->type = SW_OBJ_BOULDER;
@@ -214,6 +218,7 @@ struct sw_obj *sw_obj_gentype(enum sw_obj_type type)
 		o->cur_resist = 3;
 		o->max_resist = 3;
 		o->handle_event = boulder_handleevent;
+		o->name = "Boulder";
 		break;
 	default:
 		break;

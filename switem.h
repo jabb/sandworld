@@ -81,6 +81,6 @@ int sw_item_hasuse(struct sw_item i, unsigned long flags);
 struct sw_item sw_item_create(struct sw_item tool, struct sw_item on,
 	struct sw_item with);
 
-void sw_item_draw(struct sw_item i, int x, int y);
+void sw_item_showstats(struct sw_item i);
 
 #endif

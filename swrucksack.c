@@ -183,21 +183,21 @@ void sw_rucksack_draw(struct sw_rucksack *rs, int x, int y)
 void sw_rucksack_show(struct sw_rucksack *rs)
 {
 	int tmp = 0;
-	int selected = 0;
+	int sel = 0;
 	int cmd = 0;
 	int i;
 
 	do {
 		switch (cmd) {
 			case SW_CMD_UP: case SW_CMD_UP2:
-				selected--;
-				if (selected < 0)
-					selected = SW_RUCKSACK_SIZE - 1;
+				sel--;
+				if (sel < 0)
+					sel = SW_RUCKSACK_SIZE - 1;
 				break;
 			case SW_CMD_DOWN: case SW_CMD_DOWN2:
-				selected++;
-				if (selected >= SW_RUCKSACK_SIZE)
-					selected = 0;
+				sel++;
+				if (sel >= SW_RUCKSACK_SIZE)
+					sel = 0;
 				break;
 			case SW_CMD_ACTION:
 				goto exit;
@@ -205,16 +205,15 @@ void sw_rucksack_show(struct sw_rucksack *rs)
 			case SW_CMD_SWAP:
 				tmp = sw_ui_getnumber(-1, "Swap with?");
 				if (tmp >= 0 && tmp < SW_RUCKSACK_SIZE) {
-					sw_rucksack_swap(rs, selected, tmp);
+					sw_rucksack_swap(rs, sel, tmp);
 				}
 				break;
 			case SW_CMD_LEFT: case SW_CMD_LEFT2:
 			case SW_CMD_RIGHT: case SW_CMD_RIGHT2:
-				sw_rucksack_split(rs, selected);
+				sw_rucksack_split(rs, sel);
 				break;
 			case SW_CMD_INFO:
-				sw_item_draw(*SW_ITEMP(rs, selected),
-					1, selected + 1);
+				sw_item_showstats(*SW_ITEMP(rs, sel));
 				break;
 			case SW_CMD_QUIT:
 				return;
@@ -224,7 +223,7 @@ void sw_rucksack_show(struct sw_rucksack *rs)
 
 		sw_rucksack_draw(rs, 0, 0);
 		for (i = 0; i < SW_RUCKSACK_SIZE; ++i) {
-			if (i == selected) {
+			if (i == sel) {
 				sw_setfg(SW_YELLOW);
 				sw_putstr(1, i + 1, "%d", i);
 			} else {
@@ -247,6 +246,7 @@ exit:
 void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 {
 	int tmp;
+	struct sw_rucksack *tmprs = NULL;
 	int which = 1;
 	int sel = 0;
 	int cmd = 0;
@@ -296,6 +296,13 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 				} else {
 					sw_rucksack_split(rs2, sel);
 				}
+				break;
+			case SW_CMD_INFO:
+				if (which == 0)
+					tmprs = rs;
+				else
+					tmprs = rs2;
+				sw_item_showstats(*SW_ITEMP(tmprs, sel));
 				break;
 			case SW_CMD_QUIT:
 				return;

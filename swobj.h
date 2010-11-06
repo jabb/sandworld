@@ -53,6 +53,8 @@ struct sw_obj {
 	attr_t attr;
 	color_t fg;
 	color_t bg;
+	/* TODO: convert this to an array. */
+	const char *name;
 	int display;
 	int x;
 	int y;

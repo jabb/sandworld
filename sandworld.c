@@ -163,10 +163,10 @@ void sw_clearinfo(void)
 
 void sw_displayhelp(void)
 {
-	sw_setfg(SW_WHITE);
+	sw_setfg(SW_BLUE);
 	sw_clearinfo();
 	sw_addinfo("Help");
-	sw_addinfo("----------------------------------");
+	sw_addinfo("--------------------------------");
 	sw_addinfo("ijkl    movement");
 	sw_addinfo("<tab>   switch boxes");
 	sw_addinfo("<space> interact with something");
