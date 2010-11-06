@@ -23,62 +23,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef SWITEM_H
-#define SWITEM_H
+#ifndef SWLOG_H
+#define SWLOG_H
 
-/* Item types.
- */
-#define SW_ITEM_TYPE_NONE		0
-#define SW_ITEM_TYPE_WEAPON		(1 << 0)
-#define SW_ITEM_TYPE_TOOL		(1 << 1)
-#define SW_ITEM_TYPE_MATERIAL		(1 << 2)
+#define SWLOG 1
 
-/* Item uses.
- */
-#define SW_ITEM_USE_NONE		0
-#define SW_ITEM_USE_DIGGER		(1 << 0)
-
-#define SW_ITEM_NAME_LEN	32
-
-/* The item!
- */
-struct sw_item {
-	unsigned long type_flags;
-	unsigned long use_flags;
-	int id;
-	char name[SW_ITEM_NAME_LEN];
-	int amount;
-	int power;
-	int resist;
-	int max_uses;
-	int cur_uses;	/* Durabibility or something. :P */
-};
-
-/* Look up table values.
- */
-enum {
-	SW_ITEM_NONE = 0,
-	SW_ITEM_DIRT,
-	SW_ITEM_TREESEED,
-	SW_ITEM_DIRTBALL,
-	SW_ITEM_WOOD,
-	SW_ITEM_PULVERIZER
-};
-
-int sw_item_alloctables(void);
-void sw_item_freetables(void);
-
-/* Create an item based on one of the lookup table values.
- */
-struct sw_item sw_item_gen(unsigned long tabid);
-int sw_item_areequal(struct sw_item i1, struct sw_item i2);
-int sw_item_isnone(struct sw_item i);
-/* Use item types for the flag.
- */
-int sw_item_istype(struct sw_item i, unsigned long flags);
-int sw_item_hasuse(struct sw_item i, unsigned long flags);
-
-struct sw_item sw_item_create(struct sw_item tool, struct sw_item on,
-	struct sw_item with);
+void sw_logmsg(const char *fmt, ...);
+void sw_logerr(const char *fmt, ...);
+void sw_logwrn(const char *fmt, ...);
 
 #endif

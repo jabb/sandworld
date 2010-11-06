@@ -28,6 +28,7 @@
  */
 #include "sandworld.h"
 #include "switem.h"
+#include "swlog.h"
 #include "swobj.h"
 #include "swrucksack.h"
 #include "swtile.h"
@@ -72,10 +73,8 @@ int sw_start(void)
 
 	for (b = 0; b < SW_COLORS; ++b)
 		for (f = 0; f < SW_COLORS; ++f)
-			if (init_pair(b * SW_COLORS + f + 1, f, b) == ERR) {
-				ret = SW_ERR_GENERAL;
-				goto failure;
-			}
+			/* Don't care if it fails. */
+			init_pair(b * SW_COLORS + f + 1, f, b);
 
 	sw_seed(time(NULL));
 	sw_item_alloctables();
@@ -104,12 +103,17 @@ int main(int argc, char *argv[])
 	int tmpcmd = 0;
 	int tmpnum = 0;
 	int cmd = 0;
+	int ret;
 	struct sw_item tmpitem;
 	struct sw_obj *tmpobj = NULL;
 	struct sw_world *world = NULL;
 	struct sw_obj *player = NULL;
 
-	sw_start();
+	ret = sw_start();
+	if (ret != 0) {
+		sw_logerr("failed to initialize sandworld %d", ret);
+		return ret;
+	}
 
 	world = sw_world_genstart();
 	player = sw_obj_gentype(SW_OBJ_PLAYER);

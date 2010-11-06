@@ -33,13 +33,12 @@ int sw_rucksack_takenslots(struct sw_rucksack *rs)
 
 int sw_rucksack_iswielding(struct sw_rucksack *rs, unsigned long flag)
 {
-	return sw_item_is(*SW_ITEMP(rs, SW_INHAND_POS), flag);
+	return sw_item_istype(*SW_ITEMP(rs, SW_INHAND_POS), flag);
 }
 
 int sw_rucksack_iswearing(struct sw_rucksack *rs, unsigned long flag)
 {
-	/* TODO: Implement wearing stuff. */
-	return 0;
+	return sw_item_istype(*SW_ITEMP(rs, SW_ONSELF_POS), flag);
 }
 
 int sw_rucksack_additem(struct sw_rucksack *rs, struct sw_item item)
@@ -51,7 +50,6 @@ int sw_rucksack_additem(struct sw_rucksack *rs, struct sw_item item)
 			*SW_ITEMP(rs, i) = item;
 			return 0;
 		}
-		/* Stack. TODO: Fix items that are the same only in type. */
 		else if (sw_item_areequal(*SW_ITEMP(rs, i), item)) {
 			SW_ITEMP(rs, i)->amount += item.amount;
 			return 0;
