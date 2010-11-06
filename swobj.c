@@ -46,7 +46,8 @@ int sw_obj_isdestroyed(struct sw_obj *o)
 int sw_obj_getpower(struct sw_obj *o)
 {
 	int p = o->cur_power;
-	if (sw_rucksack_iswielding(&o->rucksack, SW_ITEM_TYPE_WEAPON))
+	if (sw_rucksack_wieldingis(&o->rucksack, SW_ITEM_TYPE_WEAPON) ||
+		sw_rucksack_wieldingis(&o->rucksack, SW_ITEM_TYPE_TOOL))
 		p += sw_rucksack_getitemp(&o->rucksack, SW_INHAND_POS)->power;
 	return p;
 }

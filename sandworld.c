@@ -122,3 +122,65 @@ void sw_getdelta(int dir, int *dx, int *dy)
 		break;
 	}
 }
+
+/* Minus two for the borders. */
+static char infos[SW_HEIGHT - 2][SW_WIDTH - 2];
+static int numinfos = 0;
+
+void sw_addinfo(const char *str, ...)
+{
+	va_list args;
+	va_start(args, str);
+	memset(infos[numinfos], 0, SW_WIDTH);
+	vsnprintf(infos[numinfos], SW_WIDTH, str, args);
+	va_end(args);
+	numinfos++;
+}
+
+void sw_infobox(int x, int y)
+{
+	int maxw = 0;
+	int i;
+
+	for (i = 0; i < numinfos; ++i)
+		if (strlen(infos[i]) > maxw)
+			maxw = strlen(infos[i]);
+
+	for (i = 0; i < numinfos; ++i) {
+		sw_clearlineto(i + y + 1, x, maxw + x + 2);
+		sw_putstr(x + 1, i + y + 1, infos[i]);
+	}
+
+	sw_box(x, y, maxw + 2, numinfos + 2);
+
+	sw_getcmd();
+}
+
+void sw_clearinfo(void)
+{
+	numinfos = 0;
+}
+
+void sw_displayhelp(void)
+{
+	sw_setfg(SW_WHITE);
+	sw_clearinfo();
+	sw_addinfo("Help");
+	sw_addinfo("----------------------------------");
+	sw_addinfo("ijkl    movement");
+	sw_addinfo("<tab>   switch boxes");
+	sw_addinfo("<space> interact with something");
+	sw_addinfo("q       quit a box or the game");
+	sw_addinfo("w       your info");
+	sw_addinfo("e       your rucksack");
+	sw_addinfo("a       attack something");
+	sw_addinfo("s       swap with something");
+	sw_addinfo("d       drop something");
+	sw_addinfo("f       info on something");
+	/*sw_addinfo("z       ");*/
+	sw_addinfo("x       use your tool on something");
+	sw_addinfo("c       create items");
+	sw_addinfo("?       this box");
+	sw_infobox(0, 0);
+}
+

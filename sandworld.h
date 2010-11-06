@@ -48,6 +48,10 @@
 #define SW_ROWS	LINES
 #define SW_COLS	COLS
 
+/* The desirable width and height. */
+#define SW_WIDTH	80
+#define SW_HEIGHT	24
+
 #define SW_ERR_GENERAL		(-1)	/* General error */
 #define SW_ERR_NONCOMP		(-2)	/* Non-compliancy */
 #define SW_ERR_NOMEM		(-3)	/* No memory */
@@ -76,6 +80,7 @@
 /*#define SW_CMD_SKILL		'z'*/
 #define SW_CMD_TOOL		'x'		/* Use a tool on something. */
 #define SW_CMD_CREATE		'c'
+#define SW_CMD_HELP		'?'		/* HALP */
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) > (b) ? (b) : (a))
@@ -126,5 +131,11 @@ void sw_box(int x, int y, int w, int h);
 /* Sets `dx` and `dy` according to the direction. x=0,y=-1 would be UP.
  */
 void sw_getdelta(int dir, int *dx, int *dy);
+
+void sw_addinfo(const char *str, ...);
+void sw_infobox(int x, int y);
+void sw_clearinfo(void);
+
+void sw_displayhelp(void);
 
 #endif

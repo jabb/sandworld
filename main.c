@@ -193,6 +193,9 @@ int main(int argc, char *argv[])
 		case SW_CMD_CREATE:
 			sw_ui_addalert("Not implemented");
 			break;
+		case SW_CMD_HELP:
+			sw_displayhelp();
+			break;
 		case SW_CMD_QUIT:
 			if (sw_ui_confirm("Are you sure? (y/n)"))
 				goto exit;

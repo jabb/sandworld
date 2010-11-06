@@ -36,7 +36,7 @@
 /* Item uses.
  */
 #define SW_ITEM_USE_NONE		0
-#define SW_ITEM_USE_DIGGER		(1 << 0)
+#define SW_ITEM_USE_DIG			(1 << 0)
 
 #define SW_ITEM_NAME_LEN	32
 
@@ -80,5 +80,7 @@ int sw_item_hasuse(struct sw_item i, unsigned long flags);
 
 struct sw_item sw_item_create(struct sw_item tool, struct sw_item on,
 	struct sw_item with);
+
+void sw_item_draw(struct sw_item i, int x, int y);
 
 #endif

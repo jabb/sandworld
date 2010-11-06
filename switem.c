@@ -1,6 +1,7 @@
 
 #include "sandworld.h"
 #include "switem.h"
+#include "swlog.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -156,4 +157,14 @@ struct sw_item sw_item_create(struct sw_item tool, struct sw_item on,
 	/* TODO: This. :P */
 
 	return sw_item_gen(SW_ITEM_NONE);
+}
+
+void sw_item_draw(struct sw_item i, int x, int y)
+{
+	sw_clearinfo();
+	sw_logmsg("%d %d %s", i.power, i.resist, i.name);
+	sw_addinfo("%s", i.name);
+	sw_addinfo("Power: %d", i.power);
+	sw_addinfo("Resist: %d", i.resist);
+	sw_infobox(x, y);
 }

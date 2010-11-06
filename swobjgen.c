@@ -59,7 +59,6 @@ static void abyss_drop(struct sw_world *world, int x, int y)
 static int abyss_handleevent(struct sw_world *world,
 	struct sw_obj *self, struct sw_obj *from, enum sw_obj_ev ev)
 {
-	int dmg;
 	int x;
 	int y;
 
@@ -71,25 +70,21 @@ static int abyss_handleevent(struct sw_world *world,
 		sw_ui_addalert("You need to use a tool on abyss.");
 		return 0; /* Object interaction always succeeeds? */
 	case SW_OBJ_EV_TOOL:
-		x = self->x;
-		y = self->y;
-		sw_world_freeobj(world, x, y);
-		sw_world_placeobj(world, sw_obj_gentype(SW_OBJ_ITEMS), x, y);
-		return 0; /* Dig succeeded. */
-	case SW_OBJ_EV_ATTACK:
-		dmg = sw_obj_attack(self, from);
-		if (sw_obj_isdestroyed(self)) {
-			sw_ui_addalert("Abyss is tough stuff, but you're "
-				"tougher. (%d dmg)", dmg);
+		if (sw_rucksack_wieldingcan(&from->rucksack,
+			SW_ITEM_USE_DIG)) {
+			/* TODO: attack the object */
 			x = self->x;
 			y = self->y;
-			sw_world_freeobj(world, self->x, self->y);
+			sw_world_freeobj(world, x, y);
 			abyss_drop(world, self->x, self->y);
+		} else {
+			sw_ui_addalert("You are not wielding an item "
+				"which can dig.");
 		}
-		else {
-			sw_ui_addalert("I dunno... do you really want to attack"
-				" abyss? (%d dmg)", dmg);
-		}
+		return 0; /* Dig succeeded. */
+	case SW_OBJ_EV_ATTACK:
+		sw_ui_addalert("Abyss cannot be attacked. Try using a tool.");
+		return -1;
 	default:
 		return -1;
 	}

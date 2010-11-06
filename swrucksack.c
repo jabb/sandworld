@@ -31,14 +31,34 @@ int sw_rucksack_takenslots(struct sw_rucksack *rs)
 	return SW_RUCKSACK_SIZE - sw_rucksack_freeslots(rs);
 }
 
-int sw_rucksack_iswielding(struct sw_rucksack *rs, unsigned long flag)
+struct sw_item *sw_rucksack_wielding(struct sw_rucksack *rs)
 {
-	return sw_item_istype(*SW_ITEMP(rs, SW_INHAND_POS), flag);
+	return SW_ITEMP(rs, SW_ONSELF_POS);
 }
 
-int sw_rucksack_iswearing(struct sw_rucksack *rs, unsigned long flag)
+struct sw_item *sw_rucksack_wearing(struct sw_rucksack *rs)
 {
-	return sw_item_istype(*SW_ITEMP(rs, SW_ONSELF_POS), flag);
+	return SW_ITEMP(rs, SW_ONSELF_POS);
+}
+
+int sw_rucksack_wieldingcan(struct sw_rucksack *rs, unsigned long flags)
+{
+	return sw_item_istype(*SW_ITEMP(rs, SW_INHAND_POS), flags);
+}
+
+int sw_rucksack_wearingcan(struct sw_rucksack *rs, unsigned long flags)
+{
+	return sw_item_istype(*SW_ITEMP(rs, SW_ONSELF_POS), flags);
+}
+
+int sw_rucksack_wieldingis(struct sw_rucksack *rs, unsigned long flags)
+{
+	return sw_item_hasuse(*SW_ITEMP(rs, SW_INHAND_POS), flags);
+}
+
+int sw_rucksack_wearingis(struct sw_rucksack *rs, unsigned long flags)
+{
+	return sw_item_hasuse(*SW_ITEMP(rs, SW_ONSELF_POS), flags);
 }
 
 int sw_rucksack_additem(struct sw_rucksack *rs, struct sw_item item)
@@ -191,6 +211,10 @@ void sw_rucksack_show(struct sw_rucksack *rs)
 			case SW_CMD_LEFT: case SW_CMD_LEFT2:
 			case SW_CMD_RIGHT: case SW_CMD_RIGHT2:
 				sw_rucksack_split(rs, selected);
+				break;
+			case SW_CMD_INFO:
+				sw_item_draw(*SW_ITEMP(rs, selected),
+					1, selected + 1);
 				break;
 			case SW_CMD_QUIT:
 				return;
