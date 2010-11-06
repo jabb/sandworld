@@ -76,7 +76,7 @@ static int abyss_handleevent(struct sw_world *world,
 			x = self->x;
 			y = self->y;
 			sw_world_freeobj(world, x, y);
-			abyss_drop(world, self->x, self->y);
+			abyss_drop(world, x, y);
 		} else {
 			sw_ui_addalert("You are not wielding an item "
 				"which can dig.");

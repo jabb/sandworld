@@ -53,7 +53,7 @@ int sw_rucksack_wearingcan(struct sw_rucksack *rs, unsigned long flags)
 
 int sw_rucksack_wieldingis(struct sw_rucksack *rs, unsigned long flags)
 {
-	return sw_item_hasuse(*SW_ITEMP(rs, SW_INHAND_POS), flags);
+	return sw_item_istype(*SW_ITEMP(rs, SW_INHAND_POS), flags);
 }
 
 int sw_rucksack_wearingis(struct sw_rucksack *rs, unsigned long flags)
