@@ -1,4 +1,5 @@
 
+#include "swlog.h"
 #include "swobj.h"
 #include "swui.h"
 #include "swworld.h"
@@ -151,7 +152,7 @@ void sw_world_moveobjto(struct sw_world *world, int x, int y, int nx, int ny)
 		return;
 
 	o = SW_OBJP(world, x, y);
-	dest_o = SW_OBJP(world, x, y);
+	dest_o = SW_OBJP(world, nx, ny);
 
 	if (!o || o == dest_o) {
 		return;
@@ -167,6 +168,8 @@ void sw_world_moveobjto(struct sw_world *world, int x, int y, int nx, int ny)
 	sw_world_freeobj(world, nx, ny);
 	sw_world_placeobj(world, o, nx, ny);
 	sw_tile_walkon(*SW_TILEP(world, x, y), o);
+
+	sw_logmsg("%s move to %d,%d", o->name, nx, ny);
 }
 
 
@@ -179,7 +182,7 @@ void sw_world_interactobj(struct sw_world *world, int x, int y, int nx, int ny)
 		return;
 
 	o = SW_OBJP(world, x, y);
-	dest_o = SW_OBJP(world, x, y);
+	dest_o = SW_OBJP(world, nx, ny);
 
 	if (!o || o == dest_o) {
 		return;
@@ -200,7 +203,7 @@ void sw_world_attackobj(struct sw_world *world, int x, int y, int nx, int ny)
 		return;
 
 	o = SW_OBJP(world, x, y);
-	dest_o = SW_OBJP(world, x, y);
+	dest_o = SW_OBJP(world, nx, ny);
 
 	if (!o || o == dest_o) {
 		return;
@@ -220,7 +223,7 @@ void sw_world_toolobj(struct sw_world *world, int x, int y, int nx, int ny)
 		return;
 
 	o = SW_OBJP(world, x, y);
-	dest_o = SW_OBJP(world, x, y);
+	dest_o = SW_OBJP(world, nx, ny);
 
 	if (!o || o == dest_o) {
 		return;
