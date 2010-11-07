@@ -100,6 +100,8 @@ int main(int argc, char *argv[])
 {
 	int dx;
 	int dy;
+	int x;
+	int y;
 	int tmpcmd = 0;
 	int tmpnum = 0;
 	int cmd = 0;
@@ -192,6 +194,17 @@ int main(int argc, char *argv[])
 			break;
 		case SW_CMD_CREATE:
 			sw_ui_addalert("Not implemented");
+			break;
+		case SW_CMD_INFO:
+			tmpcmd = sw_ui_getdir("Info on?");
+			if (tmpcmd != SW_CMD_NONE) {
+				sw_getdelta(tmpcmd, &dx, &dy);
+				x = player->x + dx;
+				y = player->y + dy;
+				if (sw_world_inbounds(world, x, y) &&
+					SW_OBJP(world, x, y))
+					sw_obj_showstats(SW_OBJP(world, x, y));
+			}
 			break;
 		case SW_CMD_HELP:
 			sw_displayhelp();

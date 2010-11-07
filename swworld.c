@@ -59,12 +59,12 @@ void sw_world_draw(struct sw_world *world, int x, int y)
 
 int sw_world_placeobj(struct sw_world *world, struct sw_obj *o, int x, int y)
 {
-	if (SW_TILEP(world, x, y)->object)
+	if (SW_OBJP(world, x, y))
 		return -1;
 	o->x = x;
 	o->y = y;
 	o->tile = SW_TILEP(world, x, y);
-	SW_TILEP(world, x, y)->object = o;
+	SW_OBJP(world, x, y) = o;
 	return 0;
 }
 
@@ -81,21 +81,21 @@ int sw_world_placeobjhome(struct sw_world *world, struct sw_obj *o)
 
 struct sw_obj *sw_world_removeobj(struct sw_world *world, int x, int y)
 {
-	struct sw_obj *o = SW_TILEP(world, x, y)->object;
+	struct sw_obj *o = SW_OBJP(world, x, y);
 	if (!o)
 		return NULL;
 	o->x = -1;
 	o->y = -1;
 	o->tile = NULL;
-	SW_TILEP(world, x, y)->object = NULL;
+	SW_OBJP(world, x, y) = NULL;
 	return o;
 }
 
 void sw_world_freeobj(struct sw_world *world, int x, int y)
 {
-	if (SW_TILEP(world, x, y)->object)
-		sw_obj_free(SW_TILEP(world, x, y)->object);
-	SW_TILEP(world, x, y)->object = NULL;
+	if (SW_OBJP(world, x, y))
+		sw_obj_free(SW_OBJP(world, x, y));
+	SW_OBJP(world, x, y) = NULL;
 }
 
 void sw_world_freeallobj(struct sw_world *world)
@@ -150,8 +150,8 @@ void sw_world_moveobjto(struct sw_world *world, int x, int y, int nx, int ny)
 	if (!sw_world_inbounds(world, nx, ny))
 		return;
 
-	o = SW_TILEP(world, x, y)->object;
-	dest_o = SW_TILEP(world, nx, ny)->object;
+	o = SW_OBJP(world, x, y);
+	dest_o = SW_OBJP(world, x, y);
 
 	if (!o || o == dest_o) {
 		return;
@@ -178,8 +178,8 @@ void sw_world_interactobj(struct sw_world *world, int x, int y, int nx, int ny)
 	if (!sw_world_inbounds(world, nx, ny))
 		return;
 
-	o = SW_TILEP(world, x, y)->object;
-	dest_o = SW_TILEP(world, nx, ny)->object;
+	o = SW_OBJP(world, x, y);
+	dest_o = SW_OBJP(world, x, y);
 
 	if (!o || o == dest_o) {
 		return;
@@ -199,8 +199,8 @@ void sw_world_attackobj(struct sw_world *world, int x, int y, int nx, int ny)
 	if (!sw_world_inbounds(world, nx, ny))
 		return;
 
-	o = SW_TILEP(world, x, y)->object;
-	dest_o = SW_TILEP(world, nx, ny)->object;
+	o = SW_OBJP(world, x, y);
+	dest_o = SW_OBJP(world, x, y);
 
 	if (!o || o == dest_o) {
 		return;
@@ -219,8 +219,8 @@ void sw_world_toolobj(struct sw_world *world, int x, int y, int nx, int ny)
 	if (!sw_world_inbounds(world, nx, ny))
 		return;
 
-	o = SW_TILEP(world, x, y)->object;
-	dest_o = SW_TILEP(world, nx, ny)->object;
+	o = SW_OBJP(world, x, y);
+	dest_o = SW_OBJP(world, x, y);
 
 	if (!o || o == dest_o) {
 		return;

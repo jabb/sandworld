@@ -47,6 +47,7 @@ void sw_world_free(struct sw_world *world);
 struct sw_tile *sw_world_gettilep(struct sw_world *world, int x, int y);
 /* Shortcut (damn lazy programmers) */
 #define SW_TILEP(world, x, y) (sw_world_gettilep(world, x, y))
+#define SW_OBJP(world, x, y) (SW_TILEP(world, x, y)->object)
 
 void sw_world_draw(struct sw_world *world, int x, int y);
 
@@ -59,7 +60,7 @@ void sw_world_freeallobj(struct sw_world *world);
 
 int sw_world_inbounds(struct sw_world *world, int x, int y);
 
-/* These functions trigger object events */
+/* These functions trigger object events. These check for out of bounds. */
 void sw_world_updateobjs(struct sw_world *world);
 void sw_world_moveobjby(struct sw_world *world, int x, int y, int dx, int dy);
 void sw_world_moveobjto(struct sw_world *world, int x, int y, int nx, int ny);
