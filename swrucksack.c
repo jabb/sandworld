@@ -277,7 +277,7 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 				break;
 			case SW_CMD_MENU:
 				sw_clearmenu();
-				sw_addmenu("Swap");
+				sw_addmenu("Tansfer");
 				sw_addmenu("Split");
 				sw_addmenu("Destroy");
 				tmp = sw_menubox(0, 0);
@@ -288,7 +288,8 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 					else
 						sw_rucksack_trans(rs, rs2, sel);
 				} else if (tmp == 1) {
-					sw_rucksack_split(tmprs, sel);
+					tmp = sw_ui_getnumber(0, "How many?");
+					sw_rucksack_splitn(tmprs, sel, tmp);
 				} else if (tmp == 2) {
 					sw_rucksack_removeitem(tmprs, sel);
 				}
@@ -385,7 +386,7 @@ void sw_rucksack_create(struct sw_rucksack *rs)
 				break;
 			case SW_CMD_MENU:
 				sw_clearmenu();
-				sw_addmenu("Swap");
+				sw_addmenu("Transfer");
 				sw_addmenu("Split");
 				sw_addmenu("Destroy");
 				tmp = sw_menubox(0, 0);
@@ -396,7 +397,8 @@ void sw_rucksack_create(struct sw_rucksack *rs)
 					else
 						sw_rucksack_trans(rs, &tr, sel);
 				} else if (tmp == 1) {
-					sw_rucksack_split(rsp, sel);
+					tmp = sw_ui_getnumber(0, "How many?");
+					sw_rucksack_splitn(rsp, sel, tmp);
 				} else if (tmp == 2) {
 					sw_rucksack_removeitem(rsp, sel);
 				}

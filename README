@@ -16,12 +16,12 @@ it. Here's some basic controls.
 
 hjkl	Basic movement, you can also use the arrow keys.
 <tab>	Brings up a menu box.
-<space>	Interact with something. (This also closes windows)
+<space>	Interact with something. (Aslo performs the default action in boxes)
 q	Quit. This applies to everything (or should).
 w	Bring up information on yourself.
 e	Bring up your rucksack (inventory).
 a	Attack something!
-s	Swap items when looking at rucksacks.
+s	Swap with something!
 d	Drop an item (doesn't work when looking at rucksacks).
 f	Info. Get information on something nearby. (Not implemented)
 z	Use a skill. (Not implemented)

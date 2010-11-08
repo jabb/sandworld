@@ -265,7 +265,7 @@ void sw_displayhelp(void)
 	sw_addinfo("--------------------------------");
 	sw_addinfo("ijkl    movement");
 	sw_addinfo("<tab>   menu");
-	sw_addinfo("<space> interact with something");
+	sw_addinfo("<space> interact with something or default action");
 	sw_addinfo("q       quit a box or the game");
 	sw_addinfo("w       your info");
 	sw_addinfo("e       your rucksack");
