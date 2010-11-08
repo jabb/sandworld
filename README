@@ -32,8 +32,9 @@ TODO
 ====
 Subject to change...
 
-[ ]	Fix up the way items are represented and loaded to allow for the
+[*]	Fix up the way items are represented and loaded to allow for the
 	creation of them.
+[ ]	Make the UI more intuitive and pretty.
 [ ]	Add more items and random item loot when breaking something.
 [ ]	Implement the creation of items.
 [ ]	Add more objects.
