@@ -73,5 +73,6 @@ struct sw_item sw_rucksack_removeitem(struct sw_rucksack *rs, int pos);
 void sw_rucksack_draw(struct sw_rucksack *rs, int x, int y);
 void sw_rucksack_show(struct sw_rucksack *rs);
 void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2);
+void sw_rucksack_create(struct sw_rucksack *rs);
 
 #endif

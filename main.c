@@ -109,6 +109,7 @@ int main(int argc, char *argv[])
 	struct sw_item tmpitem;
 	struct sw_obj *tmpobj = NULL;
 	struct sw_world *world = NULL;
+	/* TODO: remove this player (world already has one) */
 	struct sw_obj *player = NULL;
 
 	ret = sw_start();
@@ -137,7 +138,7 @@ int main(int argc, char *argv[])
 			sw_world_moveobjby(world, player->x, player->y, dx, dy);
 			break;
 		case SW_CMD_DROP:
-			tmpnum = sw_ui_getnumber( -1, "Drop which item?");
+			tmpnum = sw_ui_getnumber(-1, "Drop which item?");
 			if (tmpnum >= 0 && tmpnum < SW_RUCKSACK_SIZE) {
 				tmpitem = sw_rucksack_removeitem(
 					&player->rucksack, tmpnum);
@@ -150,7 +151,8 @@ int main(int argc, char *argv[])
 
 					sw_rucksack_additem(&tmpobj->rucksack,
 						tmpitem);
-					if (!sw_rucksack_takenslots(&tmpobj->rucksack))
+					if (!sw_rucksack_takenslots(
+						&tmpobj->rucksack))
 						sw_world_freeobj(world,
 						player->x + dx, player->y + dy);
 				}
@@ -193,7 +195,7 @@ int main(int argc, char *argv[])
 			sw_rucksack_show(&player->rucksack);
 			break;
 		case SW_CMD_CREATE:
-			sw_ui_addalert("Not implemented");
+			sw_rucksack_create(&player->rucksack);
 			break;
 		case SW_CMD_INFO:
 			tmpcmd = sw_ui_getdir("Info on?");

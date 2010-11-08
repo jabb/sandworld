@@ -17,6 +17,9 @@ struct sw_world *sw_world_alloc(void)
 		for (y = 0; y < SW_WORLD_HEIGHT; ++y)
 			*SW_TILEP(world, x, y) = sw_tile_make(SW_TILE_BLANK);
 
+	world->player = sw_obj_gentype(SW_OBJ_PLAYER);
+	if (!world->player)
+		return NULL;
 	world->home_x = 0;
 	world->home_y = 0;
 	world->linkto = NULL;
@@ -27,6 +30,8 @@ struct sw_world *sw_world_alloc(void)
 
 void sw_world_free(struct sw_world *world)
 {
+	if (world)
+		free(world->player);
 	free(world);
 }
 

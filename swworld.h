@@ -31,6 +31,7 @@
 struct sw_world {
 	int home_x;
 	int home_y;
+	struct sw_obj *player;
 	struct sw_tile tiles[SW_WORLD_WIDTH][SW_WORLD_HEIGHT];
 	struct sw_world_link {
 		int x;

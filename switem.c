@@ -154,9 +154,33 @@ int sw_item_hasuse(struct sw_item i, unsigned long flags)
 struct sw_item sw_item_create(struct sw_item tool, struct sw_item on,
 	struct sw_item with)
 {
-	/* TODO: This. :P */
+	int check = 0;
+	struct create_node *node = NULL;
+	struct sw_item tmpitem = sw_item_gen(SW_ITEM_NONE);
 
-	return sw_item_gen(SW_ITEM_NONE);
+	node = create_list;
+	while (node) {
+		check += node->toolid == SW_ITEM_NONE ||
+			(node->toolid == tool.id);
+
+		check += node->onid == SW_ITEM_NONE ||
+			(node->onid == on.id && node->onamount == on.amount);
+
+		check += node->withid == SW_ITEM_NONE ||
+			(node->withid == with.id &&
+			node->onamount == with.amount);
+
+		if (check == 3) {
+			tmpitem = sw_item_gen(node->resid);
+			tmpitem.amount = node->resamount;
+			break;
+		}
+
+		node = node->next;
+		check = 0;
+	}
+
+	return tmpitem;
 }
 
 void sw_item_showstats(struct sw_item i)

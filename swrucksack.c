@@ -170,11 +170,11 @@ void sw_rucksack_draw(struct sw_rucksack *rs, int x, int y)
 		sw_setfg(SW_WHITE);
 		/* The '\t' is just arbitrary padding */
 		if (!sw_item_isnone(*SW_ITEMP(rs, i))) {
-			sw_putstr(x + 1, i + y + 1, "\t%s (%d)",
+			sw_putstr(x + 1, i + y + 1, "\t %s (%d)",
 				SW_ITEMP(rs, i)->name,
 				SW_ITEMP(rs, i)->amount);
 		} else {
-			sw_putstr(x + 1, i + y + 1, "\t----");
+			sw_putstr(x + 1, i + y + 1, "\t ----");
 		}
 	}
 	sw_box(x, y, SW_COLS/2 - 1, SW_RUCKSACK_SIZE + 2);
@@ -271,7 +271,7 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 				if (sw_rucksack_freeslots(rs) >=
 					sw_rucksack_takenslots(rs2)) {
 					sw_rucksack_addrucksack(rs, rs2);
-					goto exit;
+					return;
 				}
 				break;
 			case SW_CMD_SWAP:
@@ -339,6 +339,120 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 
 		cmd = sw_getcmd();
 	} while (1);
-exit:
+
+	return;
+}
+
+void sw_rucksack_create(struct sw_rucksack *rs)
+{
+	int tmp;
+	int which = 0;
+	int sel = 0;
+	int cmd = 0;
+	int i;
+	struct sw_item tmpitem;
+	struct sw_rucksack tr;
+	sw_rucksack_empty(&tr);
+
+	do {
+		switch (cmd) {
+			case SW_CMD_UP: case SW_CMD_UP2:
+				sel--;
+				if (sel < 0)
+					sel = SW_RUCKSACK_SIZE - 1;
+				break;
+			case SW_CMD_DOWN: case SW_CMD_DOWN2:
+				sel++;
+				if (sel >= SW_RUCKSACK_SIZE)
+					sel = 0;
+				break;
+			case SW_CMD_SWITCH:
+				which = which == 0 ? 1 : 0;
+				break;
+			case SW_CMD_SWAP:
+				tmp = sw_ui_getnumber(-1, "Swap with?");
+				if (tmp >= 0 && tmp < SW_RUCKSACK_SIZE) {
+					if (which == 0)
+						sw_rucksack_swap(rs, sel, tmp);
+					else
+						sw_rucksack_swap(&tr, sel, tmp);
+				}
+				break;
+			case SW_CMD_LEFT: case SW_CMD_LEFT2:
+				if (which == 0) {
+					sw_rucksack_split(rs, sel);
+				} else {
+					sw_rucksack_trans(rs, &tr, sel);
+				}
+				break;
+			case SW_CMD_RIGHT: case SW_CMD_RIGHT2:
+				if (which == 0) {
+					sw_rucksack_trans(&tr, rs, sel);
+				} else {
+					sw_rucksack_split(&tr, sel);
+				}
+				break;
+			case SW_CMD_INFO:
+				if (which == 0)
+					sw_item_showstats(*SW_ITEMP(rs, sel));
+				else
+					sw_item_showstats(*SW_ITEMP(&tr, sel));
+				break;
+			case SW_CMD_CREATE:
+				tmpitem = sw_item_create(*SW_ITEMP(&tr, 0),
+					*SW_ITEMP(&tr, 1), *SW_ITEMP(&tr, 2));
+
+				if (tmpitem.id != SW_ITEM_NONE) {
+					sw_rucksack_removeitem(&tr, 0);
+					sw_rucksack_removeitem(&tr, 1);
+					sw_rucksack_removeitem(&tr, 2);
+					*SW_ITEMP(&tr, 3) = tmpitem;
+				}
+				break;
+			case SW_CMD_QUIT:
+				return;
+			default:
+				break;
+		}
+
+		sw_rucksack_draw(rs, 0, 0);
+		sw_rucksack_draw(&tr, SW_COLS/2, 0);
+		for (i = 0; i < SW_RUCKSACK_SIZE; ++i) {
+			/* First rucksack. */
+			if (i == sel && which == 0) {
+				sw_setfg(SW_YELLOW);
+				sw_putstr(1, i + 1, "%d", i);
+			} else {
+				sw_setfg(SW_WHITE);
+				sw_putstr(1, i + 1, "%d", i);
+			}
+
+			if (i == SW_INHAND_POS)
+				sw_putstr(3, i + 1, "WEP");
+			else if (i == SW_ONSELF_POS)
+				sw_putstr(3, i + 1, "ARM");
+
+			/* Second rucksack. */
+			if (i == sel && which == 1) {
+				sw_setfg(SW_YELLOW);
+				sw_putstr(SW_COLS/2 + 2, i + 1, "%d", i);
+			} else {
+				sw_setfg(SW_WHITE);
+				sw_putstr(SW_COLS/2 + 2, i + 1, "%d", i);
+			}
+
+			if (i == 0)
+				sw_putstr(SW_COLS/2 + 4, i + 1, "TOOL");
+			else if (i == 1)
+				sw_putstr(SW_COLS/2 + 4, i + 1, "ON");
+			else if (i == 2)
+				sw_putstr(SW_COLS/2 + 4, i + 1, "WITH");
+			else if (i == 3)
+				sw_putstr(SW_COLS/2 + 4, i + 1, "RES");
+		}
+
+		cmd = sw_getcmd();
+	} while (1);
+
 	return;
 }
