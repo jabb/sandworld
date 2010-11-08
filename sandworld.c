@@ -161,6 +161,74 @@ void sw_clearinfo(void)
 	numinfos = 0;
 }
 
+/* Minus two for the borders. */
+static char menus[SW_HEIGHT - 2][SW_WIDTH - 2];
+static int nummenus = 0;
+
+void sw_addmenu(const char *str, ...)
+{
+	va_list args;
+	va_start(args, str);
+	memset(menus[nummenus], 0, SW_WIDTH);
+	vsnprintf(menus[nummenus], SW_WIDTH, str, args);
+	va_end(args);
+	nummenus++;
+
+}
+
+int sw_menubox(int x, int y)
+{
+	int sel = 0;
+	int maxw = 0;
+	int i;
+	int cmd = SW_CMD_NONE;
+
+	do {
+		switch (cmd) {
+		case SW_CMD_UP: case SW_CMD_UP2:
+			sel--;
+			if (sel < 0)
+				sel = nummenus - 1;
+			break;
+		case SW_CMD_DOWN: case SW_CMD_DOWN2:
+			sel++;
+			if (sel >= nummenus)
+				sel = 0;
+			break;
+		case SW_CMD_QUIT:
+			sel = -1;
+			goto exit;
+		case SW_CMD_ACTION:
+			goto exit;
+		default:
+			break;
+		}
+
+		for (i = 0; i < nummenus; ++i)
+			if (strlen(menus[i]) > maxw)
+				maxw = strlen(menus[i]);
+		for (i = 0; i < nummenus; ++i) {
+			sw_setfg(SW_WHITE);
+			if (i == sel)
+				sw_setfg(SW_YELLOW);
+			sw_clearlineto(i + y + 1, x, maxw + x + 2);
+			sw_putstr(x + 1, i + y + 1, menus[i]);
+		}
+
+		sw_setfg(SW_WHITE);
+		sw_box(x, y, maxw + 2, nummenus + 2);
+
+		cmd = sw_getcmd();
+	} while (1);
+exit:
+	return sel;
+}
+
+void sw_clearmenu(void)
+{
+	nummenus = 0;
+}
+
 void sw_displayhelp(void)
 {
 	sw_setfg(SW_BLUE);
@@ -168,7 +236,7 @@ void sw_displayhelp(void)
 	sw_addinfo("Help");
 	sw_addinfo("--------------------------------");
 	sw_addinfo("ijkl    movement");
-	sw_addinfo("<tab>   switch boxes");
+	sw_addinfo("<tab>   menu");
 	sw_addinfo("<space> interact with something");
 	sw_addinfo("q       quit a box or the game");
 	sw_addinfo("w       your info");

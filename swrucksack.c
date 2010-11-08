@@ -264,8 +264,27 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 				if (sel >= SW_RUCKSACK_SIZE)
 					sel = 0;
 				break;
-			case SW_CMD_SWITCH:
+			case SW_CMD_LEFT: case SW_CMD_LEFT2:
+			case SW_CMD_RIGHT: case SW_CMD_RIGHT2:
 				which = which == 0 ? 1 : 0;
+				break;
+			case SW_CMD_MENU:
+				sw_clearmenu();
+				sw_addmenu("swap");
+				sw_addmenu("split");
+				sw_addmenu("destroy");
+				tmp = sw_menubox(0, 0);
+				tmprs = which ? rs2 : rs;
+				if (tmp == 0) {
+					if (which == 0)
+						sw_rucksack_trans(rs2, rs, sel);
+					else
+						sw_rucksack_trans(rs, rs2, sel);
+				} else if (tmp == 1) {
+					sw_rucksack_split(tmprs, sel);
+				} else if (tmp == 2) {
+					sw_rucksack_removeitem(tmprs, sel);
+				}
 				break;
 			case SW_CMD_ACTION:
 				if (sw_rucksack_freeslots(rs) >=
@@ -281,20 +300,6 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 						sw_rucksack_swap(rs, sel, tmp);
 					else
 						sw_rucksack_swap(rs2, sel, tmp);
-				}
-				break;
-			case SW_CMD_LEFT: case SW_CMD_LEFT2:
-				if (which == 0) {
-					sw_rucksack_split(rs, sel);
-				} else {
-					sw_rucksack_trans(rs, rs2, sel);
-				}
-				break;
-			case SW_CMD_RIGHT: case SW_CMD_RIGHT2:
-				if (which == 0) {
-					sw_rucksack_trans(rs2, rs, sel);
-				} else {
-					sw_rucksack_split(rs2, sel);
 				}
 				break;
 			case SW_CMD_INFO:
@@ -352,6 +357,7 @@ void sw_rucksack_create(struct sw_rucksack *rs)
 	int i;
 	struct sw_item tmpitem;
 	struct sw_rucksack tr;
+	struct sw_rucksack *rsp = NULL;
 	sw_rucksack_empty(&tr);
 
 	do {
@@ -366,8 +372,27 @@ void sw_rucksack_create(struct sw_rucksack *rs)
 				if (sel >= SW_RUCKSACK_SIZE)
 					sel = 0;
 				break;
-			case SW_CMD_SWITCH:
+			case SW_CMD_LEFT: case SW_CMD_LEFT2:
+			case SW_CMD_RIGHT: case SW_CMD_RIGHT2:
 				which = which == 0 ? 1 : 0;
+				break;
+			case SW_CMD_MENU:
+				sw_clearmenu();
+				sw_addmenu("swap");
+				sw_addmenu("split");
+				sw_addmenu("destroy");
+				tmp = sw_menubox(0, 0);
+				rsp = which ? &tr : rs;
+				if (tmp == 0) {
+					if (which == 0)
+						sw_rucksack_trans(&tr, rs, sel);
+					else
+						sw_rucksack_trans(rs, &tr, sel);
+				} else if (tmp == 1) {
+					sw_rucksack_split(rsp, sel);
+				} else if (tmp == 2) {
+					sw_rucksack_removeitem(rsp, sel);
+				}
 				break;
 			case SW_CMD_SWAP:
 				tmp = sw_ui_getnumber(-1, "Swap with?");
@@ -376,20 +401,6 @@ void sw_rucksack_create(struct sw_rucksack *rs)
 						sw_rucksack_swap(rs, sel, tmp);
 					else
 						sw_rucksack_swap(&tr, sel, tmp);
-				}
-				break;
-			case SW_CMD_LEFT: case SW_CMD_LEFT2:
-				if (which == 0) {
-					sw_rucksack_split(rs, sel);
-				} else {
-					sw_rucksack_trans(rs, &tr, sel);
-				}
-				break;
-			case SW_CMD_RIGHT: case SW_CMD_RIGHT2:
-				if (which == 0) {
-					sw_rucksack_trans(&tr, rs, sel);
-				} else {
-					sw_rucksack_split(&tr, sel);
 				}
 				break;
 			case SW_CMD_INFO:

@@ -15,7 +15,7 @@ Currently sandworld is not much of a game, but you can still play around with
 it. Here's some basic controls.
 
 hjkl	Basic movement, you can also use the arrow keys.
-<tab>	Switch contexts when you're in a window.
+<tab>	Brings up a menu box.
 <space>	Interact with something. (This also closes windows)
 q	Quit. This applies to everything (or should).
 w	Bring up information on yourself.
