@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
 				sw_ui_addalert("No such item.");
 			}
 			break;
-		case SW_CMD_ACTION:
+		case SW_CMD_ACTION: case SW_CMD_ACTION2:
 			tmpcmd = sw_ui_getdir("Interact with?");
 			if (tmpcmd != SW_CMD_NONE) {
 				sw_getdelta(tmpcmd, &dx, &dy);

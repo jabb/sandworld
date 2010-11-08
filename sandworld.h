@@ -70,6 +70,7 @@
 #define SW_CMD_RIGHT2		'l'		/* Another way to move right. */
 #define SW_CMD_MENU		'\t'		/* Menu box. */
 #define SW_CMD_ACTION		' '		/* Perform action or close. */
+#define SW_CMD_ACTION2		'\n'
 #define SW_CMD_QUIT		'q'		/* Quit anything. */
 #define SW_CMD_SELF		'w'		/* Info on self or selected. */
 #define SW_CMD_RUCKSACK		'e'		/* Rucksack of self. */
@@ -139,6 +140,11 @@ void sw_clearinfo(void);
 void sw_addmenu(const char *str, ...);
 int sw_menubox(int x, int y);
 void sw_clearmenu(void);
+
+/* Maybe use this. */
+void sw_loopevent(int (*fp) (int cmd));
+void sw_loopdraw(void (*fp) (void));
+void sw_loop(void);
 
 void sw_displayhelp(void);
 

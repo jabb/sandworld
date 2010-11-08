@@ -198,7 +198,7 @@ int sw_menubox(int x, int y)
 		case SW_CMD_QUIT:
 			sel = -1;
 			goto exit;
-		case SW_CMD_ACTION:
+		case SW_CMD_ACTION: case SW_CMD_ACTION2:
 			goto exit;
 		default:
 			break;
@@ -227,6 +227,34 @@ exit:
 void sw_clearmenu(void)
 {
 	nummenus = 0;
+}
+
+static int (*loopevent) (int cmd) = NULL;
+static void (*loopdraw) (void) = NULL;
+
+void sw_loopevent(int (*fp) (int cmd))
+{
+	loopevent = fp;
+}
+
+void sw_loopdraw(void (*fp) (void))
+{
+	loopdraw = fp;
+}
+
+void sw_loop(void)
+{
+	int cmd = SW_CMD_NONE;
+
+	do {
+		if (loopevent)
+			if (loopevent(cmd) != 0)
+				break;
+		if (loopdraw)
+			loopdraw();
+
+		cmd = sw_getcmd();
+	} while (1);
 }
 
 void sw_displayhelp(void)

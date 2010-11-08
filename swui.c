@@ -17,7 +17,7 @@ int sw_ui_confirm(const char *str, ...)
 
 	va_end(args);
 
-	return cmd == 'y' || cmd == SW_CMD_ACTION;
+	return cmd == 'y' || cmd == SW_CMD_ACTION || cmd == SW_CMD_ACTION2;
 }
 
 int sw_ui_getnumber(int def, const char *str, ...)

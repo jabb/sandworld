@@ -65,12 +65,15 @@ int sw_rucksack_additem(struct sw_rucksack *rs, struct sw_item item);
 int sw_rucksack_addrucksack(struct sw_rucksack *rs, struct sw_rucksack *rs2);
 
 void sw_rucksack_swap(struct sw_rucksack *rs, int pos1, int pos2);
-int sw_rucksack_trans(struct sw_rucksack *rs, struct sw_rucksack *rs2, int pos);
+int sw_rucksack_trans(struct sw_rucksack *dst, struct sw_rucksack *src, int p);
 int sw_rucksack_split(struct sw_rucksack *rs, int pos);
+int sw_rucksack_splitn(struct sw_rucksack *rs, int pos, int num);
 
 struct sw_item sw_rucksack_removeitem(struct sw_rucksack *rs, int pos);
 
 void sw_rucksack_draw(struct sw_rucksack *rs, int x, int y);
+
+/* Rucksack UI. */
 void sw_rucksack_show(struct sw_rucksack *rs);
 void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2);
 void sw_rucksack_create(struct sw_rucksack *rs);

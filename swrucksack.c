@@ -104,14 +104,14 @@ void sw_rucksack_swap(struct sw_rucksack *rs, int pos1, int pos2)
 }
 
 
-int sw_rucksack_trans(struct sw_rucksack *rs, struct sw_rucksack *rs2, int pos)
+int sw_rucksack_trans(struct sw_rucksack *dst, struct sw_rucksack *src, int pos)
 {
 	struct sw_item tmp;
 
-	tmp = *SW_ITEMP(rs2, pos);
+	tmp = *SW_ITEMP(src, pos);
 
-	if (sw_rucksack_additem(rs, tmp) == 0) {
-		sw_rucksack_removeitem(rs2, pos);
+	if (sw_rucksack_additem(dst, tmp) == 0) {
+		sw_rucksack_removeitem(src, pos);
 		return -1;
 	}
 
@@ -120,15 +120,22 @@ int sw_rucksack_trans(struct sw_rucksack *rs, struct sw_rucksack *rs2, int pos)
 
 int sw_rucksack_split(struct sw_rucksack *rs, int pos)
 {
+	return sw_rucksack_splitn(rs, pos, 1);
+}
+
+int sw_rucksack_splitn(struct sw_rucksack *rs, int pos, int num)
+{
 	int i;
+
+	if (SW_ITEMP(rs, pos)->amount < num)
+		return -1;
 
 	/* First pass, check for a second stack of items. */
 	for (i = 0; i < SW_RUCKSACK_SIZE; ++i) {
-		if (i != pos &&
-			sw_item_areequal(*SW_ITEMP(rs, i),
+		if (i != pos && sw_item_areequal(*SW_ITEMP(rs, i),
 				*SW_ITEMP(rs, pos))) {
-			SW_ITEMP(rs, pos)->amount -= 1;
-			SW_ITEMP(rs, i)->amount += 1;
+			SW_ITEMP(rs, pos)->amount -= num;
+			SW_ITEMP(rs, i)->amount += num;
 			if (SW_ITEMP(rs, pos)->amount <= 0)
 				sw_rucksack_removeitem(rs, pos);
 			return 0;
@@ -140,8 +147,8 @@ int sw_rucksack_split(struct sw_rucksack *rs, int pos)
 		if (!sw_item_areequal(*SW_ITEMP(rs, i), *SW_ITEMP(rs, pos))) {
 			if (sw_item_isnone(*SW_ITEMP(rs, i))) {
 				*SW_ITEMP(rs, i) = rs->items[pos];
-				SW_ITEMP(rs, i)->amount = 1;
-				SW_ITEMP(rs, pos)->amount -= 1;
+				SW_ITEMP(rs, i)->amount = num;
+				SW_ITEMP(rs, pos)->amount -= num;
 				if (SW_ITEMP(rs, pos)->amount <= 0)
 					sw_rucksack_removeitem(rs, pos);
 				return 0;
@@ -199,7 +206,7 @@ void sw_rucksack_show(struct sw_rucksack *rs)
 				if (sel >= SW_RUCKSACK_SIZE)
 					sel = 0;
 				break;
-			case SW_CMD_ACTION:
+			case SW_CMD_ACTION: case SW_CMD_ACTION2:
 				goto exit;
 				break;
 			case SW_CMD_SWAP:
@@ -270,9 +277,9 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 				break;
 			case SW_CMD_MENU:
 				sw_clearmenu();
-				sw_addmenu("swap");
-				sw_addmenu("split");
-				sw_addmenu("destroy");
+				sw_addmenu("Swap");
+				sw_addmenu("Split");
+				sw_addmenu("Destroy");
 				tmp = sw_menubox(0, 0);
 				tmprs = which ? rs2 : rs;
 				if (tmp == 0) {
@@ -286,7 +293,7 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 					sw_rucksack_removeitem(tmprs, sel);
 				}
 				break;
-			case SW_CMD_ACTION:
+			case SW_CMD_ACTION: case SW_CMD_ACTION2:
 				if (sw_rucksack_freeslots(rs) >=
 					sw_rucksack_takenslots(rs2)) {
 					sw_rucksack_addrucksack(rs, rs2);
@@ -378,9 +385,9 @@ void sw_rucksack_create(struct sw_rucksack *rs)
 				break;
 			case SW_CMD_MENU:
 				sw_clearmenu();
-				sw_addmenu("swap");
-				sw_addmenu("split");
-				sw_addmenu("destroy");
+				sw_addmenu("Swap");
+				sw_addmenu("Split");
+				sw_addmenu("Destroy");
 				tmp = sw_menubox(0, 0);
 				rsp = which ? &tr : rs;
 				if (tmp == 0) {
