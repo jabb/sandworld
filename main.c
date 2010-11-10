@@ -92,6 +92,30 @@ void sw_stop(void)
 	endwin();
 }
 
+
+void sw_displayhelp(void)
+{
+	sw_setfg(SW_BLUE);
+	sw_clearinfo();
+	sw_addinfo("Help");
+	sw_addinfo("--------------------------------");
+	sw_addinfo("ijkl    movement");
+	sw_addinfo("<tab>   menu");
+	sw_addinfo("<space> interact with something or default action");
+	sw_addinfo("q       quit a box or the game");
+	sw_addinfo("w       your info");
+	sw_addinfo("e       your rucksack");
+	sw_addinfo("a       attack something");
+	sw_addinfo("s       swap with something");
+	sw_addinfo("d       drop something");
+	sw_addinfo("f       info on something");
+	sw_addinfo("z       use a skill");
+	sw_addinfo("x       use your tool on something");
+	sw_addinfo("c       create items");
+	sw_addinfo("?       this box");
+	sw_infobox(0, 0);
+}
+
 /******************************************************************************\
  * ENTRY
 \******************************************************************************/
@@ -137,6 +161,38 @@ int main(int argc, char *argv[])
 			sw_getdelta(cmd, &dx, &dy);
 			sw_world_moveobjby(world, player->x, player->y, dx, dy);
 			break;
+		case SW_CMD_MENU:
+			break;
+		case SW_CMD_QUIT:
+			if (sw_ui_confirm("Are you sure? (y/n)"))
+				goto exit;
+			break;
+		case SW_CMD_SELF:
+			sw_obj_showstats(player);
+			break;
+		case SW_CMD_RUCKSACK:
+			sw_rucksack_show(&player->rucksack);
+			break;
+		case SW_CMD_ACTION: case SW_CMD_ACTION2:
+			tmpcmd = sw_ui_getdir("Interact with?");
+			if (tmpcmd != SW_CMD_NONE) {
+				sw_getdelta(tmpcmd, &dx, &dy);
+				sw_world_interactobj(world,
+					player->x, player->y,
+					player->x + dx, player->y + dy);
+			}
+			break;
+		case SW_CMD_ATTACK:
+			tmpcmd = sw_ui_getdir("Attack what?");
+			if (tmpcmd != SW_CMD_NONE) {
+				sw_getdelta(tmpcmd, &dx, &dy);
+				sw_world_attackobj(world,
+					player->x, player->y,
+					player->x + dx, player->y + dy);
+			}
+			break;
+		case SW_CMD_SWAP:
+			break;
 		case SW_CMD_DROP:
 			tmpnum = sw_ui_getnumber(-1, "Drop which item?");
 			if (tmpnum >= 0 && tmpnum < SW_RUCKSACK_SIZE) {
@@ -161,42 +217,6 @@ int main(int argc, char *argv[])
 				sw_ui_addalert("No such item.");
 			}
 			break;
-		case SW_CMD_ACTION: case SW_CMD_ACTION2:
-			tmpcmd = sw_ui_getdir("Interact with?");
-			if (tmpcmd != SW_CMD_NONE) {
-				sw_getdelta(tmpcmd, &dx, &dy);
-				sw_world_interactobj(world,
-					player->x, player->y,
-					player->x + dx, player->y + dy);
-			}
-			break;
-		case SW_CMD_ATTACK:
-			tmpcmd = sw_ui_getdir("Attack what?");
-			if (tmpcmd != SW_CMD_NONE) {
-				sw_getdelta(tmpcmd, &dx, &dy);
-				sw_world_attackobj(world,
-					player->x, player->y,
-					player->x + dx, player->y + dy);
-			}
-			break;
-		case SW_CMD_TOOL:
-			tmpcmd = sw_ui_getdir("Use tool on what?");
-			if (tmpcmd != SW_CMD_NONE) {
-				sw_getdelta(tmpcmd, &dx, &dy);
-				sw_world_toolobj(world,
-					player->x, player->y,
-					player->x + dx, player->y + dy);
-			}
-			break;
-		case SW_CMD_SELF:
-			sw_obj_showstats(player);
-			break;
-		case SW_CMD_RUCKSACK:
-			sw_rucksack_show(&player->rucksack);
-			break;
-		case SW_CMD_CREATE:
-			sw_rucksack_create(&player->rucksack);
-			break;
 		case SW_CMD_INFO:
 			tmpcmd = sw_ui_getdir("Info on?");
 			if (tmpcmd != SW_CMD_NONE) {
@@ -208,12 +228,22 @@ int main(int argc, char *argv[])
 					sw_obj_showstats(SW_OBJP(world, x, y));
 			}
 			break;
+		case SW_CMD_SKILL:
+			break;
+		case SW_CMD_TOOL:
+			tmpcmd = sw_ui_getdir("Use tool on what?");
+			if (tmpcmd != SW_CMD_NONE) {
+				sw_getdelta(tmpcmd, &dx, &dy);
+				sw_world_toolobj(world,
+					player->x, player->y,
+					player->x + dx, player->y + dy);
+			}
+			break;
+		case SW_CMD_CREATE:
+			sw_rucksack_create(&player->rucksack);
+			break;
 		case SW_CMD_HELP:
 			sw_displayhelp();
-			break;
-		case SW_CMD_QUIT:
-			if (sw_ui_confirm("Are you sure? (y/n)"))
-				goto exit;
 			break;
 		default:
 			break;

@@ -162,15 +162,26 @@ void sw_clearinfo(void)
 }
 
 /* Minus two for the borders. */
+static char menuheader[SW_WIDTH - 2] = {0};
 static char menus[SW_HEIGHT - 2][SW_WIDTH - 2];
 static int nummenus = 0;
+
+void sw_addmenuheader(const char *str, ...)
+{
+	va_list args;
+	va_start(args, str);
+	memset(menuheader, 0, SW_WIDTH - 2);
+	vsnprintf(menuheader, SW_WIDTH - 2, str, args);
+	va_end(args);
+
+}
 
 void sw_addmenu(const char *str, ...)
 {
 	va_list args;
 	va_start(args, str);
-	memset(menus[nummenus], 0, SW_WIDTH);
-	vsnprintf(menus[nummenus], SW_WIDTH, str, args);
+	memset(menus[nummenus], 0, SW_WIDTH - 2);
+	vsnprintf(menus[nummenus], SW_WIDTH - 2, str, args);
 	va_end(args);
 	nummenus++;
 
@@ -178,10 +189,15 @@ void sw_addmenu(const char *str, ...)
 
 int sw_menubox(int x, int y)
 {
+	const char *sep = "--------------------------------";
 	int sel = 0;
-	int maxw = 0;
+	int maxw = MAX(strlen(sep), strlen(menuheader));
 	int i;
 	int cmd = SW_CMD_NONE;
+
+	for (i = 0; i < nummenus; ++i)
+		if (strlen(menus[i]) > maxw)
+			maxw = strlen(menus[i]);
 
 	do {
 		switch (cmd) {
@@ -204,19 +220,23 @@ int sw_menubox(int x, int y)
 			break;
 		}
 
-		for (i = 0; i < nummenus; ++i)
-			if (strlen(menus[i]) > maxw)
-				maxw = strlen(menus[i]);
+
+		sw_setfg(SW_WHITE);
+		sw_clearlineto(y + 1, x, maxw + x + 2);
+		sw_clearlineto(y + 2, x, maxw + x + 2);
+		sw_putstr(x + 1, y + 1, menuheader);
+		sw_putstr(x + 1, y + 2, sep);
+
 		for (i = 0; i < nummenus; ++i) {
 			sw_setfg(SW_WHITE);
 			if (i == sel)
 				sw_setfg(SW_YELLOW);
-			sw_clearlineto(i + y + 1, x, maxw + x + 2);
-			sw_putstr(x + 1, i + y + 1, menus[i]);
+			sw_clearlineto(i + y + 1 + 2, x, maxw + x + 2);
+			sw_putstr(x + 1, i + y + 1 + 2, menus[i]);
 		}
 
 		sw_setfg(SW_WHITE);
-		sw_box(x, y, maxw + 2, nummenus + 2);
+		sw_box(x, y, maxw + 2, nummenus + 2 + 2);
 
 		cmd = sw_getcmd();
 	} while (1);
@@ -226,6 +246,7 @@ exit:
 
 void sw_clearmenu(void)
 {
+	sw_addmenuheader("");
 	nummenus = 0;
 }
 
@@ -255,28 +276,5 @@ void sw_loop(void)
 
 		cmd = sw_getcmd();
 	} while (1);
-}
-
-void sw_displayhelp(void)
-{
-	sw_setfg(SW_BLUE);
-	sw_clearinfo();
-	sw_addinfo("Help");
-	sw_addinfo("--------------------------------");
-	sw_addinfo("ijkl    movement");
-	sw_addinfo("<tab>   menu");
-	sw_addinfo("<space> interact with something or default action");
-	sw_addinfo("q       quit a box or the game");
-	sw_addinfo("w       your info");
-	sw_addinfo("e       your rucksack");
-	sw_addinfo("a       attack something");
-	sw_addinfo("s       swap with something");
-	sw_addinfo("d       drop something");
-	sw_addinfo("f       info on something");
-	/*sw_addinfo("z       ");*/
-	sw_addinfo("x       use your tool on something");
-	sw_addinfo("c       create items");
-	sw_addinfo("?       this box");
-	sw_infobox(0, 0);
 }
 

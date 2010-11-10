@@ -78,7 +78,7 @@
 #define SW_CMD_SWAP		's'		/* Spawn character or item. */
 #define SW_CMD_DROP		'd'		/* Drop item (outside box). */
 #define SW_CMD_INFO		'f'		/* Info on other objects. */
-/*#define SW_CMD_SKILL		'z'*/
+#define SW_CMD_SKILL		'z'
 #define SW_CMD_TOOL		'x'		/* Use a tool on something. */
 #define SW_CMD_CREATE		'c'
 #define SW_CMD_HELP		'?'		/* HALP */
@@ -137,6 +137,7 @@ void sw_addinfo(const char *str, ...);
 void sw_infobox(int x, int y);
 void sw_clearinfo(void);
 
+void sw_addmenuheader(const char *str, ...);
 void sw_addmenu(const char *str, ...);
 int sw_menubox(int x, int y);
 void sw_clearmenu(void);
@@ -145,7 +146,5 @@ void sw_clearmenu(void);
 void sw_loopevent(int (*fp) (int cmd));
 void sw_loopdraw(void (*fp) (void));
 void sw_loop(void);
-
-void sw_displayhelp(void);
 
 #endif

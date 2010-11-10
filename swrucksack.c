@@ -253,7 +253,7 @@ exit:
 void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 {
 	int tmp;
-	struct sw_rucksack *tmprs = NULL;
+	struct sw_rucksack *rsp = NULL;
 	int which = 1;
 	int sel = 0;
 	int cmd = 0;
@@ -276,12 +276,13 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 				which = which == 0 ? 1 : 0;
 				break;
 			case SW_CMD_MENU:
+				rsp = which ? rs2 : rs;
 				sw_clearmenu();
+				sw_addmenuheader(SW_ITEMP(rsp, sel)->name);
 				sw_addmenu("Tansfer");
 				sw_addmenu("Split");
 				sw_addmenu("Destroy");
 				tmp = sw_menubox(0, 0);
-				tmprs = which ? rs2 : rs;
 				if (tmp == 0) {
 					if (which == 0)
 						sw_rucksack_trans(rs2, rs, sel);
@@ -289,9 +290,9 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 						sw_rucksack_trans(rs, rs2, sel);
 				} else if (tmp == 1) {
 					tmp = sw_ui_getnumber(0, "How many?");
-					sw_rucksack_splitn(tmprs, sel, tmp);
+					sw_rucksack_splitn(rsp, sel, tmp);
 				} else if (tmp == 2) {
-					sw_rucksack_removeitem(tmprs, sel);
+					sw_rucksack_removeitem(rsp, sel);
 				}
 				break;
 			case SW_CMD_ACTION: case SW_CMD_ACTION2:
@@ -312,10 +313,10 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 				break;
 			case SW_CMD_INFO:
 				if (which == 0)
-					tmprs = rs;
+					rsp = rs;
 				else
-					tmprs = rs2;
-				sw_item_showstats(*SW_ITEMP(tmprs, sel));
+					rsp = rs2;
+				sw_item_showstats(*SW_ITEMP(rsp, sel));
 				break;
 			case SW_CMD_QUIT:
 				return;
@@ -385,12 +386,13 @@ void sw_rucksack_create(struct sw_rucksack *rs)
 				which = which == 0 ? 1 : 0;
 				break;
 			case SW_CMD_MENU:
+				rsp = which ? &tr : rs;
 				sw_clearmenu();
+				sw_addmenuheader(SW_ITEMP(rsp, sel)->name);
 				sw_addmenu("Transfer");
 				sw_addmenu("Split");
 				sw_addmenu("Destroy");
 				tmp = sw_menubox(0, 0);
-				rsp = which ? &tr : rs;
 				if (tmp == 0) {
 					if (which == 0)
 						sw_rucksack_trans(&tr, rs, sel);

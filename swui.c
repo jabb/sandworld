@@ -40,10 +40,16 @@ int sw_ui_getnumber(int def, const char *str, ...)
 			buf[pos] = c;
 			pos++;
 		}
+		else if (c == KEY_BACKSPACE || c == KEY_DC) {
+			if (pos >= 1) {
+				pos--;
+				buf[pos] = '\0';
+			}
+		}
 
 		sw_setfg(SW_BLACK);
 		sw_clearlineto(0, 0, SW_COLS);
-		sw_setfgbg(SW_WHITE, SW_BLACK, SW_ATTR_NONE);
+		sw_setfg(SW_WHITE);
 		sw_putstr(0, 0, "%s (%d): %s", msg, def, buf);
 		c = getch();
 	} while (c != '\n' && c != 27 && c != 'q');
