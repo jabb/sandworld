@@ -69,7 +69,6 @@ int sw_world_placeobj(struct sw_world *world, struct sw_obj *o, int x, int y)
 		return -1;
 	o->x = x;
 	o->y = y;
-	o->tile = SW_TILEP(world, x, y);
 	SW_OBJP(world, x, y) = o;
 	return 0;
 }
@@ -80,7 +79,6 @@ int sw_world_placeobjhome(struct sw_world *world, struct sw_obj *o)
 		return -1;
 	o->x = world->home_x;
 	o->y = world->home_y;
-	o->tile = &world->tiles[o->x][o->y];
 	world->tiles[o->x][o->y].object = o;
 	return 0;
 }
@@ -92,7 +90,6 @@ struct sw_obj *sw_world_removeobj(struct sw_world *world, int x, int y)
 		return NULL;
 	o->x = -1;
 	o->y = -1;
-	o->tile = NULL;
 	SW_OBJP(world, x, y) = NULL;
 	return o;
 }

@@ -28,7 +28,6 @@ struct sw_obj *sw_obj_alloc(void)
 	o->max_power = 0;
 	o->cur_resist = 0;
 	o->max_resist = 0;
-	o->tile = NULL;
 	o->handle_event = blank_handleevent;
 	sw_rucksack_empty(&o->rucksack);
 	return o;

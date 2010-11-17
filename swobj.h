@@ -64,7 +64,6 @@ struct sw_obj {
 	int cur_power;
 	int max_resist;
 	int cur_resist;
-	struct sw_tile *tile;
 	struct sw_rucksack rucksack;
 	/* This function returns 0 when a given object event is successful */
 	int (*handle_event) (struct sw_world *,
