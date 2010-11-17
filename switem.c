@@ -120,7 +120,9 @@ void sw_item_freetables(void)
 
 struct sw_item sw_item_gen(unsigned long id)
 {
-	sw_logmsg("generated item %d: \"%s\"", item_table[id].id, item_table[id].name);
+	if (id != SW_ITEM_NONE)
+		sw_logmsg("generated item %d: \"%s\"",
+			item_table[id].id, item_table[id].name);
 	return item_table[id];
 }
 

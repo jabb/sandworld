@@ -171,7 +171,7 @@ void sw_world_moveobjto(struct sw_world *world, int x, int y, int nx, int ny)
 	sw_world_placeobj(world, o, nx, ny);
 	sw_tile_walkon(*SW_TILEP(world, x, y), o);
 
-	sw_logmsg("%s move to %d,%d", o->name, nx, ny);
+	sw_logmsg("%s moved to %d,%d", o->name, nx, ny);
 }
 
 
@@ -191,6 +191,8 @@ void sw_world_interactobj(struct sw_world *world, int x, int y, int nx, int ny)
 	} else if (!dest_o) {
 		sw_world_nullobj(world, nx, ny, o, SW_OBJ_EV_INTERACT);
 	} else if (dest_o && dest_o->handle_event) {
+		sw_logmsg("%s interacted with to %d,%d (%s)", o->name, nx, ny,
+			dest_o->name);
 		dest_o->handle_event(world, dest_o, o, SW_OBJ_EV_INTERACT);
 	}
 }
@@ -212,6 +214,8 @@ void sw_world_attackobj(struct sw_world *world, int x, int y, int nx, int ny)
 	} else if (!dest_o) {
 		sw_world_nullobj(world, nx, ny, o, SW_OBJ_EV_ATTACK);
 	} else if (dest_o && dest_o->handle_event) {
+		sw_logmsg("%s attacked %d,%d (%s)", o->name, nx, ny,
+			dest_o->name);
 		dest_o->handle_event(world, dest_o, o, SW_OBJ_EV_ATTACK);
 	}
 }
@@ -232,6 +236,8 @@ void sw_world_toolobj(struct sw_world *world, int x, int y, int nx, int ny)
 	} else if (!dest_o) {
 		sw_world_nullobj(world, nx, ny, o, SW_OBJ_EV_TOOL);
 	} else if (dest_o && dest_o->handle_event) {
+		sw_logmsg("%s used a tool on %d,%d (%s)", o->name, nx, ny,
+			dest_o->name);
 		dest_o->handle_event(world, dest_o, o, SW_OBJ_EV_TOOL);
 	}
 }
