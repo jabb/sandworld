@@ -83,9 +83,9 @@ struct sw_obj {
 };
 
 struct sw_obj *sw_obj_alloc(void);
-struct sw_obj *sw_obj_genfromitem(struct sw_item item);
 void sw_obj_free(struct sw_obj *o);
 struct sw_obj *sw_obj_gen(enum sw_obj_type type);
+struct sw_obj *sw_obj_genfromitem(struct sw_item item);
 int sw_obj_isdestroyed(struct sw_obj *o);
 int sw_obj_getpower(struct sw_obj *o);
 int sw_obj_getresist(struct sw_obj *o);

@@ -27,7 +27,7 @@ void sw_rsui_show(struct sw_world *world, struct sw_rucksack *rs)
 				sw_ui_addmenuheader(SW_ITEMP(rs, sel)->name);
 				sw_ui_addmenu("Info");
 				sw_ui_addmenu("Destroy");
-				sw_ui_addmenu("Drop");
+				sw_ui_addmenu("Place");
 				sw_ui_addmenu("Split");
 				sw_ui_addmenu("Swap");
 				sw_ui_addmenu("Equip as Weapon");
@@ -38,7 +38,16 @@ void sw_rsui_show(struct sw_world *world, struct sw_rucksack *rs)
 				} else if (tmp == 1) {
 					sw_rucksack_removeitem(rs, sel);
 				} else if (tmp == 2) {
-					/* TODO: implement. */
+					if (sw_item_hasuse(*SW_ITEMP(rs, sel),
+						SW_ITEM_USE_PLACE)) {
+						tmp = sw_ui_getdir("Where?");
+
+					} else {
+						sw_ui_addalert(
+							"You can't place %s!\n",
+							SW_ITEMP(rs, sel)->name
+							);
+					}
 				} else if (tmp == 3) {
 					tmp = sw_ui_getnumber(0, "How many?");
 					sw_rucksack_splitn(rs, sel, tmp);
@@ -78,6 +87,7 @@ void sw_rsui_show(struct sw_world *world, struct sw_rucksack *rs)
 				sw_putstr(3, i + 1, "ARM");
 		}
 
+		sw_ui_draw();
 		cmd = sw_getcmd();
 	} while (1);
 

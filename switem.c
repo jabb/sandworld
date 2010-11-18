@@ -118,7 +118,7 @@ int sw_item_alloctables(void)
 		"Nothing", 1, 0, 0, 0);
 	add_to_itemtable(SW_ITEM_TYPE_MATERIAL, SW_ITEM_USE_NONE,
 		 "Dirt", 1, 0, 0, 0);
-	add_to_itemtable(SW_ITEM_TYPE_MATERIAL, SW_ITEM_USE_NONE,
+	add_to_itemtable(SW_ITEM_TYPE_MATERIAL, SW_ITEM_USE_PLACE,
 		 "Tree Seed", 1, 0, 0, 0);
 	add_to_itemtable(SW_ITEM_TYPE_MATERIAL, SW_ITEM_USE_NONE,
 		 "Dirt Ball", 1, 0, 0, 0);

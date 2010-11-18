@@ -9,6 +9,36 @@
 static int name(struct sw_world *world, struct sw_obj *self, \
 	struct sw_obj *from, enum sw_obj_ev ev)
 
+/******************************************************************************/
+
+struct a_drop {
+	int chance;
+	int itemid;
+	int min;
+	int max;
+};
+
+static void drop(struct sw_world *world, int x, int y, struct a_drop drops[],
+	unsigned long size)
+{
+	int i;
+	struct sw_item item;
+	struct sw_obj *o = sw_obj_gen(SW_OBJ_ITEMS);
+
+	for (i = 0; i < size; ++i) {
+		if (sw_onein(drops[i].chance)) {
+			item = sw_item_genamount(drops[i].itemid,
+				sw_randint(drops[i].min, drops[i].max));
+			sw_rucksack_additem(&o->rucksack, item);
+		}
+	}
+
+	if (sw_rucksack_takenslots(&o->rucksack) > 0)
+		sw_world_placeobj(world, o, x, y);
+}
+
+/******************************************************************************/
+
 EVENT_HANDLER(items_handleevent)
 {
 	int rv = 0;
@@ -41,32 +71,6 @@ EVENT_HANDLER(items_handleevent)
 		break;
 	}
 	return rv;
-}
-
-struct a_drop {
-	int chance;
-	int itemid;
-	int min;
-	int max;
-};
-
-static void drop(struct sw_world *world, int x, int y, struct a_drop drops[],
-	unsigned long size)
-{
-	int i;
-	struct sw_item item;
-	struct sw_obj *o = sw_obj_gen(SW_OBJ_ITEMS);
-
-	for (i = 0; i < size; ++i) {
-		if (sw_onein(drops[i].chance)) {
-			item = sw_item_genamount(drops[i].itemid,
-				sw_randint(drops[i].min, drops[i].max));
-			sw_rucksack_additem(&o->rucksack, item);
-		}
-	}
-
-	if (sw_rucksack_takenslots(&o->rucksack) > 0)
-		sw_world_placeobj(world, o, x, y);
 }
 
 EVENT_HANDLER(dirt_handleevent)
@@ -190,6 +194,8 @@ EVENT_HANDLER(boulder_handleevent)
 	return -1;
 }
 
+/******************************************************************************/
+
 struct sw_obj *sw_obj_gen(enum sw_obj_type type)
 {
 	struct sw_obj *o = sw_obj_alloc();
@@ -267,4 +273,10 @@ struct sw_obj *sw_obj_gen(enum sw_obj_type type)
 	}
 
 	return o;
+}
+
+
+struct sw_obj *sw_obj_genfromitem(struct sw_item item)
+{
+	return NULL;
 }
