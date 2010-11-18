@@ -8,7 +8,12 @@ static int items_handleevent(struct sw_world *world,
 {
 	switch (ev) {
 	case SW_OBJ_EV_MOVE:
-		sw_ui_addalert("Space->Direction to pick up items.");
+		if (sw_rucksack_addrucksack(&from->rucksack, &self->rucksack)
+			== 0) {
+			sw_world_freeobj(world, self->x, self->y);
+		} else {
+			sw_ui_addalert("Your rucksack is full.");
+		}
 		return -1; /* Return -1 saying, "you can't move here yet" */
 	/* Interacting with an item attempts pickup. */
 	case SW_OBJ_EV_INTERACT:
@@ -64,14 +69,22 @@ static int abyss_handleevent(struct sw_world *world,
 
 	switch (ev) {
 	case SW_OBJ_EV_MOVE:
-		sw_ui_addalert("You cannot move there!");
+		if (sw_rucksack_wieldingcan(&from->rucksack, SW_ITEM_USE_DIG)) {
+			/* TODO: attack the object */
+			x = self->x;
+			y = self->y;
+			sw_world_freeobj(world, x, y);
+			abyss_drop(world, x, y);
+		} else {
+			sw_ui_addalert("You are not wielding an item "
+				"which can dig.");
+		}
 		return -1; /* Return -1 saying, "you can't move here yet" */
 	case SW_OBJ_EV_INTERACT:
 		sw_ui_addalert("You need to use a tool on abyss.");
 		return 0; /* Object interaction always succeeeds? */
 	case SW_OBJ_EV_TOOL:
-		if (sw_rucksack_wieldingcan(&from->rucksack,
-			SW_ITEM_USE_DIG)) {
+		if (sw_rucksack_wieldingcan(&from->rucksack, SW_ITEM_USE_DIG)) {
 			/* TODO: attack the object */
 			x = self->x;
 			y = self->y;
