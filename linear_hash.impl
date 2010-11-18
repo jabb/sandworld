@@ -1,0 +1,508 @@
+/* Copyright (c) 2010, Michael Patraw
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * The name of Michael Patraw may not be used to endorse or promote
+ *       products derived from this software without specific prior written
+ *       permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY Michael Patraw ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL Michael Patraw BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/* Linear Hash v0.9b
+ *
+ * To use this module, include it into a source file. The default
+ * key/value pairs are string/int. You can have custom key/value
+ * pairs by declaring a few functions and macros before including:
+ *
+ * Values:
+ * LH_V
+ *	What to use for values. If the value needs to be free'd or managed
+ *	by the table, set lh_freefn to your own free function.
+ * void lh_freevfn(LH_V)
+ *	The free function.
+ *
+ * Keys:
+ *	You can declare LH_STRINGK before including to get the default string
+ *	behaviour.
+ * LH_K
+ *	What do use for the keys. You MUST set a hash, compare and copy
+ *	function. Optionally, you can set a free function.
+ * unsigned long lh_hashkfn(LH_K, unsigned long size)
+ *	Return a hash of the key between the values 0 and size.
+ * int lh_compkfn(LH_K, LH_K)
+ *	Return -1 if the first argument is less than the second,
+ *	0 if they are equal and 1 if the first argument is larger
+ *	than the second.
+ * LH_K lh_copykfn(LH_K)
+ *	Return a fresh copy. Desirable if you're using dynamic
+ *	memory and pointers for the keys.
+ * void lh_freekfn(LH_K)
+ *	Free the key (if you're using dynamic memory.
+ */
+#include <assert.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <string.h>
+
+/******************************************************************************/
+
+/* Default key hashing and comparing:
+ */
+#if defined(LH_STRINGK)
+
+#define LH_K char *
+
+static unsigned long lh_hashstr(LH_K str, unsigned long size)
+{
+	size_t i, n = strlen(str);
+	unsigned long h = 0;
+
+	for (i = 0; i < n; ++i) {
+		h *= 31;
+		h += str[i];
+	}
+	return h % size;
+}
+
+static int lh_compstr(LH_K str1, LH_K str2)
+{
+	return strcmp(str1, str2);
+}
+
+static LH_K lh_copystr(LH_K str)
+{
+	LH_K key = malloc(strlen(str) + 1);
+	strcpy(key, str);
+	return key;
+}
+
+static void lh_freestr(LH_K str)
+{
+	free(str);
+}
+
+/* Key function pointers set to the string equivalents. */
+static unsigned long (*lh_hashkfn) (LH_K, unsigned long) = lh_hashstr;
+static void (*lh_freekfn) (LH_K) = lh_freestr;
+static int (*lh_compkfn) (LH_K, LH_K) = lh_compstr;
+static LH_K (*lh_copykfn) (LH_K) = lh_copystr;
+#else
+/* Key function pointers. */
+static unsigned long (*lh_hashkfn) (LH_K, unsigned long) = NULL;
+static void (*lh_freekfn) (LH_K) = NULL;
+static int (*lh_compkfn) (LH_K, LH_K) = NULL;
+static LH_K (*lh_copykfn) (LH_K) = NULL;
+#endif
+
+/* Value function pointer for freeing. */
+static void (*lh_freevfn) (LH_V) = NULL;
+
+/******************************************************************************/
+
+/* A key type must be defined. */
+#if !defined LH_K
+#error "LH_K is not defined"
+#endif
+/* A value type must be defined. */
+#if !defined LH_V
+#error "LH_V is not defined"
+#endif
+
+/* Encapsulates the function pointers.
+ */
+static unsigned long lh_hashk(LH_K key, unsigned long size)
+{
+	/* Hashing must exist. */
+	if (!lh_hashkfn)
+		assert(!"lh_hashfn is not defined");
+	return lh_hashkfn(key, size);
+}
+
+static void lh_freek(LH_K key)
+{
+	/* Freeing may exist. */
+	if (lh_freekfn)
+		lh_freekfn(key);
+}
+
+static int lh_compk(LH_K key1, LH_K key2)
+{
+	/* Comparing must exist. */
+	if (!lh_compkfn)
+		assert(!"lh_compfn is not defined");
+	return lh_compkfn(key1, key2);
+}
+
+static LH_K lh_copyk(LH_K key)
+{
+	/* Copy must exist. */
+	if (!lh_copykfn)
+		assert(!"lh_copyfn is not defined");
+	return lh_copykfn(key);
+}
+
+static void lh_freev(LH_V val)
+{
+	/* Freeing may exist. */
+	if (lh_freevfn)
+		lh_freevfn(val);
+}
+
+/******************************************************************************/
+
+/* The number of collisions before a rehash. */
+#define _MAXCOLLISIONS 3
+
+#define _POW2(x) (1 << (x))
+#define _NBUCKETS(lvl, siz) (siz * _POW2(lvl))
+#define _ADDRESS(key, lvl, siz) (lh_hashk(key, _NBUCKETS(lvl, siz)))
+
+/******************************************************************************/
+
+struct _lh_bucket {
+	LH_K key;				/* Custom key. */
+	LH_V value;				/* Custom value. */
+	struct _lh_bucket *next;		/* Collisions. */
+};
+
+static struct _lh_bucket *_lh_allocbucket(LH_K key, LH_V val,
+	struct _lh_bucket *next)
+{
+	struct _lh_bucket *b;
+	b = malloc(sizeof(struct _lh_bucket));
+	if (!b)
+		return NULL;
+	b->key = lh_copyk(key);
+	b->value = val;
+	b->next = next;
+	return b;
+}
+
+static void _lh_freebucket(struct _lh_bucket *b)
+{
+	if (b) {
+		lh_freek(b->key);
+		lh_freev(b->value);
+	}
+	free(b);
+}
+
+/******************************************************************************/
+
+struct linear_hash {
+	unsigned long split;		/* Split location. */
+	unsigned long N;		/* Should remain constant. */
+	unsigned long level;		/* Current log2 "level". */
+	unsigned long allocd;		/* Allocated buckets (N*log2(lvl)). */
+	struct _lh_bucket **buckets;	/* Dynamic array of buckets. */
+};
+
+/* Returns the size of the bucket (number of collisions). */
+static unsigned long _lh_insert(struct linear_hash *lh, unsigned long addr,
+	struct _lh_bucket *b)
+{
+	struct _lh_bucket *iter = NULL, *prev = NULL, *tmp = NULL;
+	unsigned long count = 0;
+
+	iter = lh->buckets[addr];
+	if (!iter) {
+		lh->buckets[addr] = b;
+		lh->buckets[addr]->next = NULL;
+		count++;
+	} else if (!iter->next) {
+		count = 1;
+		if (lh_compk(iter->key, b->key) == 0) {
+			/* Duplicate found. Delete the duplicate. */
+			lh->buckets[addr] = iter->next;
+			tmp = iter;
+			iter = lh->buckets[addr];
+			_lh_freebucket(tmp);
+
+			lh->buckets[addr] = b;
+			lh->buckets[addr]->next = NULL;
+		}
+		else {
+			iter->next = b;
+			iter->next->next = NULL;
+			count++;
+		}
+	} else {
+		count = 1;
+		while (iter->next) {
+			count++;
+			if (lh_compk(iter->key, b->key) == 0) {
+				/* Duplicate found. Delete the duplicate. */
+				if (!prev) {
+					lh->buckets[addr] = iter->next;
+					tmp = iter;
+					iter = lh->buckets[addr];
+				} else {
+					prev->next = iter->next;
+					tmp = iter;
+					iter = prev;
+				}
+				_lh_freebucket(tmp);
+				count--;
+			} else {
+				prev = iter;
+				iter = iter->next;
+			}
+		}
+
+		iter->next = b;
+		iter->next->next = NULL;
+	}
+
+	return count;
+}
+
+static int _lh_resize(struct linear_hash *lh)
+{
+	unsigned long i;
+
+	/* Plus 2 to get the next level. Typically the size is plus 1. */
+	lh->buckets = realloc(lh->buckets,
+		sizeof(struct lh_bucket *) * lh->N * _POW2(lh->level + 2));
+	if (!lh->buckets)
+		return -1;
+
+	for (i = lh->N * _POW2(lh->level + 1);
+		i < lh->N * _POW2(lh->level + 2); ++i)
+		lh->buckets[i] = NULL;
+
+	lh->split = 0;
+	lh->level++;
+	lh->allocd = lh->N * _POW2(lh->level + 1);
+
+	return 0;
+}
+
+static int _lh_rehash(struct linear_hash *lh)
+{
+	struct _lh_bucket *tmp = NULL, *iter = NULL;
+	unsigned long hash;
+
+	iter = lh->buckets[lh->split];
+	lh->buckets[lh->split] = NULL;
+	lh->split++;
+
+	while (iter) {
+		tmp = iter;
+		iter = iter->next;
+		tmp->next = NULL;
+		if (_ADDRESS(tmp->key, lh->level, lh->N) >= lh->split)
+			hash = _ADDRESS(tmp->key, lh->level, lh->N);
+		else
+			hash = _ADDRESS(tmp->key, lh->level + 1, lh->N);
+		_lh_insert(lh, hash, tmp);
+	}
+
+	/* Time to resize? */
+	if (lh->split >= lh->allocd / 2)
+		if (_lh_resize(lh) != 0)
+			return -1;
+
+	return 0;
+}
+
+/******************************************************************************/
+
+/* Returns a fresh linear hash table. The value passed is the initial size,
+ * and the table grows by powers of 2 times the initial size. So setting it
+ * to 3, the table will start with a size of 3, then grow to 6, then grow to
+ * 24, etc.
+ */
+static struct linear_hash *lh_alloc(unsigned long size)
+{
+	unsigned long i;
+	struct linear_hash *lh = malloc(sizeof(struct linear_hash));
+
+	if (!lh)
+		goto failure;
+
+	lh->split = 0;
+	lh->N = size;
+	lh->level = 0;
+	lh->allocd = lh->N * _POW2(lh->level + 1);
+	lh->buckets = malloc(sizeof(struct lh_bucket *) * lh->allocd);
+	if (!lh->buckets)
+		goto failure;
+
+	for (i = 0; i < lh->allocd; ++i)
+		lh->buckets[i] = NULL;
+
+	goto success;
+failure:
+	if (lh)
+		free(lh->buckets);
+	free(lh);
+success:
+	return lh;
+}
+
+/* Frees the entire hash table and all it's key/value pairs (if needed).
+ */
+static void lh_free(struct linear_hash *lh)
+{
+	struct _lh_bucket *tmp = NULL;
+	unsigned long i;
+	for (i = 0; i < lh->allocd; ++i) {
+		while (lh->buckets[i]) {
+			tmp = lh->buckets[i];
+			lh->buckets[i] = lh->buckets[i]->next;
+			_lh_freebucket(tmp);
+		}
+	}
+	free(lh->buckets);
+	free(lh);
+}
+
+/* Adds a value to the hash. If the key exists, the previous value is
+ * deallocated and replaced by the new one.
+ */
+static int lh_add(struct linear_hash *lh, LH_K key, LH_V val)
+{
+	struct _lh_bucket *tmp = NULL;
+	unsigned long hash, count;
+
+	if (_ADDRESS(key, lh->level, lh->N) >= lh->split)
+		hash = _ADDRESS(key, lh->level, lh->N);
+	else
+		hash = _ADDRESS(key, lh->level + 1, lh->N);
+
+	tmp = _lh_allocbucket(key, val, NULL);
+	count = _lh_insert(lh, hash, tmp);
+
+	if (count >= _MAXCOLLISIONS)
+		if (_lh_rehash(lh) != 0)
+			return -1;
+
+	return 0;
+}
+
+/* Returns 1 if there is an entry in the hash table for `key`, 0
+ * if not.
+ */
+static int lh_exists(struct linear_hash *lh, LH_K key)
+{
+	struct _lh_bucket *iter = NULL;
+	unsigned long hash;
+
+	if (_ADDRESS(key, lh->level, lh->N) >= lh->split)
+		hash = _ADDRESS(key, lh->level, lh->N);
+	else
+		hash = _ADDRESS(key, lh->level + 1, lh->N);
+
+	iter = lh->buckets[hash];
+	while (iter) {
+		if (lh_compk(iter->key, key) == 0)
+			return 1;
+		iter = iter->next;
+	}
+
+	return iter ? 1 : 0;
+}
+
+/* Returns the value corresponding to the key. If it doesn't exist
+ * this function causes a segfault. The value returned is still
+ * under control (it get's free'd).
+ */
+static LH_V lh_get(struct linear_hash *lh, LH_K key)
+{
+	LH_V def_value;
+	struct _lh_bucket *iter = NULL;
+	unsigned long hash;
+
+	if (_ADDRESS(key, lh->level, lh->N) >= lh->split)
+		hash = _ADDRESS(key, lh->level, lh->N);
+	else
+		hash = _ADDRESS(key, lh->level + 1, lh->N);
+
+	iter = lh->buckets[hash];
+	while (iter) {
+		if (lh_compk(iter->key, key) == 0)
+			return iter->value;
+		iter = iter->next;
+	}
+
+	/* Value doesn't exist. */
+	raise(SIGSEGV);
+	return def_value;
+}
+
+/* Removes a value from the hash. Segfaults if the key
+ * doesn't exists. This removes the value from being free'd
+ * by the hash, so take care of it.
+ */
+static LH_V lh_remove(struct linear_hash *lh, LH_K key)
+{
+	struct _lh_bucket *iter = NULL, *prev = NULL;
+	LH_V ret;
+	unsigned long hash;
+
+	if (_ADDRESS(key, lh->level, lh->N) >= lh->split)
+		hash = _ADDRESS(key, lh->level, lh->N);
+	else
+		hash = _ADDRESS(key, lh->level + 1, lh->N);
+
+	iter = lh->buckets[hash];
+	while (iter) {
+		if (lh_compk(iter->key, key) == 0) {
+			/* Found. Remove it. */
+			ret = iter->value;
+
+			if (!prev) {
+				lh->buckets[hash] = iter->next;
+			} else {
+				prev->next = iter->next;
+			}
+
+			lh_freek(iter->key);
+			free(iter);
+
+			return ret;
+		}
+		prev = iter;
+		iter = iter->next;
+	}
+
+	/* Value doesn't exist. */
+	raise(SIGSEGV);
+	return ret;
+}
+
+/* This function exists to remove warnings. */
+void _lh_remove_warnings(struct linear_hash *lh)
+{
+	LH_K key;
+	LH_V val;
+	assert(!"Called _lh_remove_warnings! That's a no-no.");
+	lh_alloc(2);
+	lh_free(lh);
+	lh_exists(lh, key);
+	lh_get(lh, key);
+	lh_remove(lh, key);
+	lh_add(lh, key, val);
+	lh_free(lh);
+}
+
+#undef LH_K
+#undef LH_STRINGK
+#undef LH_V
+

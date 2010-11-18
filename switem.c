@@ -13,18 +13,56 @@
 static struct sw_item item_table[ITEM_TABLE_SIZE];
 static int items = 0;
 
+/* Shortcut. */
+#define ITEM_NONE sw_item_gen(SW_ITEM_NONE)
+
+/* Item creation stuff. */
 struct create_node {
-	int toolid;
-	int onid;
-	int onamount;
-	int withid;
-	int withamount;
-	int resid;
-	int resamount;
-	struct create_node *next;
+	struct sw_item tool;
+	struct sw_item on;
+	struct sw_item with;
 };
 
-static struct create_node *create_list = NULL;
+#define LH_K struct create_node *
+#define LH_V struct sw_item
+#include "linear_hash.impl"
+
+static unsigned long ct_hashkfn(struct create_node *node, unsigned long size)
+{
+	unsigned long hash = 0;
+	hash += node->tool.id * 2654435761;
+	hash += node->tool.amount * 2654435761;
+	hash += node->on.id * 2654435761;
+	hash += node->on.amount * 2654435761;
+	hash += node->with.id * 2654435761;
+	hash += node->with.amount * 2654435761;
+	return hash % size;
+}
+
+static int ct_compkfn(struct create_node *node1, struct create_node *node2)
+{
+	/* We're only concerned with the amount and type. */
+	int test1, test2, test3;
+
+	test1 = node1->tool.id == node2->tool.id &&
+		node1->tool.amount == node2->tool.amount;
+	test2 = node1->on.id == node2->on.id &&
+		node1->on.amount == node2->on.amount;
+	test3 = node1->with.id == node2->with.id &&
+		node1->with.amount == node2->with.amount;
+	return (test1 && test2 && test3) ? 0 : -1;
+}
+
+static struct create_node *ct_copykfn(struct create_node *node)
+{
+	struct create_node *newnode = malloc(sizeof(struct create_node));
+	newnode->tool = node->tool;
+	newnode->on = node->on;
+	newnode->with = node->with;
+	return newnode;
+}
+
+struct linear_hash *creation_table = NULL;
 
 static int add_to_itemtable(unsigned long tflags, unsigned long uflags,
 	const char *name, int amount, int power, int resist, int uses)
@@ -49,50 +87,21 @@ static int add_to_itemtable(unsigned long tflags, unsigned long uflags,
 	return 0;
 }
 
-static int add_to_createtable(int toolid, int onid, int onamount, int withid,
-	int withamount, int resid, int resamount)
+static int add_to_createtable(struct sw_item tool, struct sw_item on,
+	struct sw_item with, struct sw_item result)
 {
-	struct create_node *iter = NULL;
+	struct create_node node;
+	node.tool = tool;
+	node.on = on;
+	node.with = with;
+	lh_add(creation_table, &node, result);
 
-	if (!create_list) {
-		create_list = malloc(sizeof(struct create_node));
-
-		if (!create_list)
-			return SW_ERR_NOMEM;
-
-		create_list->toolid = toolid;
-		create_list->onid = onid;
-		create_list->onamount = onamount;
-		create_list->withid = withid;
-		create_list->withamount = withamount;
-		create_list->resid = resid;
-		create_list->resamount = resamount;
-		create_list->next = NULL;
-	} else {
-		iter = create_list;
-		while (iter->next)
-			iter = iter->next;
-
-		iter->next = malloc(sizeof(struct create_node));
-
-		if (!iter->next)
-			return SW_ERR_NOMEM;
-
-		iter->next->toolid = toolid;
-		iter->next->onid = onid;
-		iter->next->onamount = onamount;
-		iter->next->withid = withid;
-		iter->next->withamount = withamount;
-		iter->next->resid = resid;
-		iter->next->resamount = resamount;
-		iter->next->next = NULL;
-	}
-
-	return 0;
+	return 1;
 }
 
 int sw_item_alloctables(void)
 {
+	/* Items must be allocated before the item creation table. */
 	add_to_itemtable(SW_ITEM_TYPE_NONE, SW_ITEM_USE_NONE,
 		"Nothing", 1, 0, 0, 0);
 	add_to_itemtable(SW_ITEM_TYPE_MATERIAL, SW_ITEM_USE_NONE,
@@ -106,8 +115,17 @@ int sw_item_alloctables(void)
 	add_to_itemtable(SW_ITEM_TYPE_WEAPON, SW_ITEM_USE_NONE,
 		 "Pulverizer", 1, 5, 0, 0);
 
-	add_to_createtable(SW_ITEM_NONE, SW_ITEM_DIRT, 2, SW_ITEM_NONE, 0,
-		SW_ITEM_DIRTBALL, 1);
+	/* Allocate the item creation table. */
+	lh_hashkfn = ct_hashkfn;
+	lh_compkfn = ct_compkfn;
+	lh_copykfn = ct_copykfn;
+	creation_table = lh_alloc(32);
+
+	add_to_createtable(
+		sw_item_genamount(SW_ITEM_DIRT, 2),
+		ITEM_NONE,
+		ITEM_NONE,
+		sw_item_genamount(SW_ITEM_DIRTBALL, 2));
 
 	sw_logmsg("allocated item tables successfully");
 	return 0;
@@ -115,20 +133,31 @@ int sw_item_alloctables(void)
 
 void sw_item_freetables(void)
 {
-
+	lh_free(creation_table);
 }
 
-struct sw_item sw_item_gen(unsigned long id)
+struct sw_item sw_item_gen(unsigned long tabid)
 {
-	if (id != SW_ITEM_NONE)
-		sw_logmsg("generated item %d: \"%s\"",
-			item_table[id].id, item_table[id].name);
-	return item_table[id];
+	return sw_item_genamount(tabid, 1);
+}
+
+struct sw_item sw_item_genamount(unsigned long tabid, int amount)
+{
+	struct sw_item rv = item_table[tabid];
+	if (tabid != SW_ITEM_NONE)
+		sw_logmsg("generated item %d: \"%s\"", rv.id, rv.name);
+	rv.amount = amount;
+	return rv;
 }
 
 int sw_item_areequal(struct sw_item i1, struct sw_item i2)
 {
 	/* This will be improved as time goes on. */
+	return i1.id == i2.id;
+}
+
+int sw_item_arestackable(struct sw_item i1, struct sw_item i2)
+{
 	return i1.id == i2.id &&
 		i1.max_uses == i2.max_uses &&
 		i1.cur_uses == i2.cur_uses;
@@ -156,33 +185,16 @@ int sw_item_hasuse(struct sw_item i, unsigned long flags)
 struct sw_item sw_item_create(struct sw_item tool, struct sw_item on,
 	struct sw_item with)
 {
-	int check = 0;
-	struct create_node *node = NULL;
-	struct sw_item tmpitem = sw_item_gen(SW_ITEM_NONE);
+	struct create_node node;
+	struct sw_item rv = ITEM_NONE;
+	node.tool = tool;
+	node.on = on;
+	node.with = with;
+	sw_logmsg("HASH: %lu\n", ct_hashkfn(&node, 64));
+	if (lh_exists(creation_table, &node))
+		rv = lh_get(creation_table, &node);
 
-	node = create_list;
-	while (node) {
-		check += node->toolid == SW_ITEM_NONE ||
-			(node->toolid == tool.id);
-
-		check += node->onid == SW_ITEM_NONE ||
-			(node->onid == on.id && node->onamount == on.amount);
-
-		check += node->withid == SW_ITEM_NONE ||
-			(node->withid == with.id &&
-			node->onamount == with.amount);
-
-		if (check == 3) {
-			tmpitem = sw_item_gen(node->resid);
-			tmpitem.amount = node->resamount;
-			break;
-		}
-
-		node = node->next;
-		check = 0;
-	}
-
-	return tmpitem;
+	return rv;
 }
 
 void sw_item_showstats(struct sw_item i)

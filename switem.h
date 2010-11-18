@@ -71,7 +71,9 @@ void sw_item_freetables(void);
 /* Create an item based on one of the lookup table values.
  */
 struct sw_item sw_item_gen(unsigned long tabid);
+struct sw_item sw_item_genamount(unsigned long tabid, int amount);
 int sw_item_areequal(struct sw_item i1, struct sw_item i2);
+int sw_item_arestackable(struct sw_item i1, struct sw_item i2);
 int sw_item_isnone(struct sw_item i);
 /* Use item types for the flag.
  */

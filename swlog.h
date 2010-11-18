@@ -31,5 +31,6 @@
 void sw_logmsg(const char *fmt, ...);
 void sw_logerr(const char *fmt, ...);
 void sw_logwrn(const char *fmt, ...);
+void sw_lograw(const char *fmt, ...);
 
 #endif

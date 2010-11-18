@@ -59,3 +59,20 @@ void sw_logwrn(const char *fmt, ...)
 #endif
 }
 
+void sw_lograw(const char *fmt, ...)
+{
+#if SWLOG == 1
+	va_list args;
+	va_start(args, fmt);
+
+	openlogfile();
+
+	if (logfile) {
+		vfprintf(logfile, fmt, args);
+		fflush(logfile);
+	}
+
+	va_end(args);
+#endif
+}
+

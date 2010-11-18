@@ -70,7 +70,7 @@ int sw_rucksack_additem(struct sw_rucksack *rs, struct sw_item item)
 			*SW_ITEMP(rs, i) = item;
 			return 0;
 		}
-		else if (sw_item_areequal(*SW_ITEMP(rs, i), item)) {
+		else if (sw_item_arestackable(*SW_ITEMP(rs, i), item)) {
 			SW_ITEMP(rs, i)->amount += item.amount;
 			return 0;
 		}

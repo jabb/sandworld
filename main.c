@@ -146,8 +146,8 @@ int main(int argc, char *argv[])
 	player = sw_obj_gentype(SW_OBJ_PLAYER);
 
 	sw_world_placeobjhome(world, player);
-	sw_rucksack_additem(&player->rucksack, sw_item_gen(SW_ITEM_DIRT));
-	sw_rucksack_additem(&player->rucksack, sw_item_gen(SW_ITEM_DIRT));
+	sw_rucksack_additem(&player->rucksack,
+		sw_item_genamount(SW_ITEM_DIRT, 2));
 
 	do {
 		switch (cmd) {
