@@ -12,6 +12,11 @@ int sw_randint(unsigned int l, unsigned int h)
 	return rand() % (MAX(l, h + 1) - MIN(l, h + 1)) + l;
 }
 
+int sw_onein(unsigned int chance)
+{
+	return rand() > (RAND_MAX * (chance / 100.0f)) ? 0 : 1;
+}
+
 /*
  * Puts a colored character on the screen at x,y
  */

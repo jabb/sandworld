@@ -99,6 +99,10 @@ void sw_seed(unsigned long s);
  */
 int sw_randint(unsigned int l, unsigned int h);
 
+/* Returns 1 if the chance occurred, else 0.
+ */
+int sw_onein(unsigned int chance);
+
 /* Puts a colored character on the screen at x,y
  */
 void sw_putch(int x, int y, int ch);

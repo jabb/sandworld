@@ -42,12 +42,22 @@ enum sw_obj_ev {
 };
 
 enum sw_obj_type {
+	/* Special objects. */
 	SW_OBJ_NONE,	/* This can not be interacted with at all. */
 	SW_OBJ_PLAYER,	/* The player! */
-	SW_OBJ_ABYSS,	/* This can be dug into. */
-	SW_OBJ_ITEMS,	/* Simple item batch. */
+
+	/* Basic objects able to be dug into. */
+	SW_OBJ_DIRT,
+	SW_OBJ_CLAY,
+	SW_OBJ_STONE,
+
+	/* Basic core objects like items. */
+	SW_OBJ_ITEMS,
+
+	/* Other objects. */
 	SW_OBJ_TREE,
-	SW_OBJ_BOULDER
+	SW_OBJ_BOULDER,
+	SW_OBJ_BUSH
 };
 
 struct sw_obj {

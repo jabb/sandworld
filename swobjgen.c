@@ -3,6 +3,8 @@
 #include "swui.h"
 #include "swworld.h"
 
+#define ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
+
 #define EVENT_HANDLER(name) \
 static int name(struct sw_world *world, struct sw_obj *self, \
 	struct sw_obj *from, enum sw_obj_ev ev)
@@ -41,40 +43,43 @@ EVENT_HANDLER(items_handleevent)
 	return rv;
 }
 
-static void abyss_drop(struct sw_world *world, int x, int y)
+struct a_drop {
+	int chance;
+	int itemid;
+	int min;
+	int max;
+};
+
+static void drop(struct sw_world *world, int x, int y, struct a_drop drops[],
+	unsigned long size)
 {
-	const int NONE_CHANCE = 95;
-	const int DIRT_CHANCE = 3 + NONE_CHANCE;
-	const int TREESEED_CHANCE = 2 + DIRT_CHANCE;
-	int i, r;
+	int i;
 	struct sw_item item;
 	struct sw_obj *o = sw_obj_gentype(SW_OBJ_ITEMS);
 
-	for (i = 0; i < 10; ++i) {
-		r = sw_randint(1, 100);
-
-		if (r < NONE_CHANCE) {
-			item = sw_item_gen(SW_ITEM_NONE);
-		} else if (r < DIRT_CHANCE) {
-			item = sw_item_gen(SW_ITEM_DIRT);
-		} else if (r < TREESEED_CHANCE) {
-			item = sw_item_gen(SW_ITEM_TREESEED);
-		} else {
-			item = sw_item_gen(SW_ITEM_NONE);
+	for (i = 0; i < size; ++i) {
+		if (sw_onein(drops[i].chance)) {
+			item = sw_item_genamount(drops[i].itemid,
+				sw_randint(drops[i].min, drops[i].max));
+			sw_rucksack_additem(&o->rucksack, item);
 		}
-
-		sw_rucksack_additem(&o->rucksack, item);
 	}
 
 	if (sw_rucksack_takenslots(&o->rucksack) > 0)
 		sw_world_placeobj(world, o, x, y);
 }
 
-EVENT_HANDLER(abyss_handleevent)
+EVENT_HANDLER(dirt_handleevent)
 {
 	int x;
 	int y;
 	int rv = 0;
+
+	struct a_drop drops[] = {
+		/*Chance	Item			Amount */
+		{30,		SW_ITEM_DIRT,		1,	2},
+		{10,		SW_ITEM_TREESEED, 	1,	1}
+	};
 
 	switch (ev) {
 	case SW_OBJ_EV_MOVE:
@@ -86,18 +91,19 @@ EVENT_HANDLER(abyss_handleevent)
 			x = self->x;
 			y = self->y;
 			sw_world_freeobj(world, x, y);
-			abyss_drop(world, x, y);
-			sw_ui_addalert("You dig through the abyss.");
+			drop(world, x, y, drops, ARRAY_SIZE(drops));
+			sw_ui_addalert("You dig through this stuff.");
 		} else {
 			sw_ui_addalert("You are not wielding an item "
 				"which can dig.");
 		}
 		break;
 	case SW_OBJ_EV_INTERACT:
-		sw_ui_addalert("You need to use a tool on abyss.");
+		sw_ui_addalert("You need to use a tool on this stuff.");
 		return 0; /* Object interaction always succeeeds? */
 	case SW_OBJ_EV_ATTACK:
-		sw_ui_addalert("Abyss cannot be attacked. Try using a tool.");
+		sw_ui_addalert("This stuff cannot be attacked. "
+			"Try using a tool.");
 		rv = -1;
 		break;
 	default:
@@ -108,36 +114,23 @@ EVENT_HANDLER(abyss_handleevent)
 	return rv;
 }
 
-EVENT_HANDLER(tree_handleevent)
+EVENT_HANDLER(plant_handleevent)
 {
 	struct sw_obj *tmpobj = NULL;
 	int dmg;
 	int x;
 	int y;
+	int rv = 0;
 
 	switch (ev) {
 	case SW_OBJ_EV_MOVE:
-		dmg = sw_obj_attack(self, from);
-		if (sw_obj_isdestroyed(self)) {
-			sw_ui_addalert("You deal a feirce blow to the tree! "
-				"(%d dmg)", dmg);
-			x = self->x;
-			y = self->y;
-			sw_world_freeobj(world, self->x, self->y);
-			tmpobj = sw_obj_gentype(SW_OBJ_ITEMS);
-			sw_rucksack_additem(&tmpobj->rucksack,
-				sw_item_gen(SW_ITEM_WOOD));
-			sw_world_placeobj(world, tmpobj, x, y);
-		} else {
-			sw_ui_addalert("Bark IS stronger than bite! "
-				"(%d dmg)", dmg);
-		}
-		return -1; /* Return -1 saying, "you can't move here yet" */
+		sw_ui_addalert("Nice %s.", self->name);
+		return -1;
 	case SW_OBJ_EV_ATTACK:
 		dmg = sw_obj_attack(self, from);
 		if (sw_obj_isdestroyed(self)) {
-			sw_ui_addalert("You deal a feirce blow to the tree! "
-				"(%d dmg)", dmg);
+			sw_ui_addalert("You deal a feirce blow to the %s! "
+				"(%d dmg)", self->name, dmg);
 			x = self->x;
 			y = self->y;
 			sw_world_freeobj(world, self->x, self->y);
@@ -146,17 +139,19 @@ EVENT_HANDLER(tree_handleevent)
 				sw_item_gen(SW_ITEM_WOOD));
 			sw_world_placeobj(world, tmpobj, x, y);
 		} else {
-			sw_ui_addalert("Bark IS stronger than bite! "
+			sw_ui_addalert("Stupid plant... "
 				"(%d dmg)", dmg);
 		}
-		return 0;
+		break;
 	case SW_OBJ_EV_INTERACT:
 		sw_ui_addalert("Nice tree. Kinda mangly.");
-		return 0; /* Object interaction always succeeeds? */
+		break; /* Object interaction always succeeeds? */
 	default:
-		return -1;
+		rv = -1;
+		break;
 	}
-	return -1;
+
+	return rv;
 }
 
 EVENT_HANDLER(boulder_handleevent)
@@ -168,8 +163,8 @@ EVENT_HANDLER(boulder_handleevent)
 
 	switch (ev) {
 	case SW_OBJ_EV_MOVE:
-		sw_ui_addalert("You cannot move there!");
-		return -1; /* Return -1 saying, "you can't move here yet" */
+		sw_ui_addalert("Nice %s.", self->name);
+		return -1;
 	case SW_OBJ_EV_INTERACT:
 		sw_ui_addalert("Mighty big boulder there.");
 		return 0; /* Object interaction always succeeeds? */
@@ -204,20 +199,35 @@ struct sw_obj *sw_obj_gentype(enum sw_obj_type type)
 		return NULL;
 
 	switch (type) {
-	case SW_OBJ_ABYSS:
-		o->type = SW_OBJ_ABYSS;
-		o->attr = SW_ATTR_BRIGHT;
-		o->fg = SW_BLACK;
-		o->display = ';';
-		o->handle_event = abyss_handleevent;
-		o->name = "Abyss";
-		break;
 	case SW_OBJ_PLAYER:
 		o->type = SW_OBJ_PLAYER;
 		o->attr = SW_ATTR_NONE;
 		o->fg = SW_RED;
 		o->display = '@';
 		o->name = "Player";
+		break;
+	case SW_OBJ_DIRT:
+		o->type = SW_OBJ_DIRT;
+		o->attr = SW_ATTR_BRIGHT;
+		o->fg = SW_BLACK;
+		o->display = ';';
+		o->handle_event = dirt_handleevent;
+		o->name = "Dirt";
+		break;
+	case SW_OBJ_CLAY:
+		o->type = SW_OBJ_CLAY;
+		o->fg = SW_YELLOW;
+		o->display = ';';
+		o->handle_event = dirt_handleevent;
+		o->name = "Clay";
+		break;
+	case SW_OBJ_STONE:
+		o->type = SW_OBJ_STONE;
+		o->attr = SW_ATTR_BRIGHT;
+		o->fg = SW_BLACK;
+		o->display = '#';
+		o->handle_event = dirt_handleevent;
+		o->name = "Stone";
 		break;
 	case SW_OBJ_ITEMS:
 		o->type = SW_OBJ_ITEMS;
@@ -231,7 +241,7 @@ struct sw_obj *sw_obj_gentype(enum sw_obj_type type)
 		o->attr = SW_ATTR_BRIGHT;
 		o->fg = SW_GREEN;
 		o->display = 'T';
-		o->handle_event = tree_handleevent;
+		o->handle_event = plant_handleevent;
 		o->name = "Tree";
 		break;
 	case SW_OBJ_BOULDER:
@@ -245,6 +255,13 @@ struct sw_obj *sw_obj_gentype(enum sw_obj_type type)
 		o->max_resist = 3;
 		o->handle_event = boulder_handleevent;
 		o->name = "Boulder";
+		break;
+	case SW_OBJ_BUSH:
+		o->type = SW_OBJ_BUSH;
+		o->fg = SW_GREEN;
+		o->display = '*';
+		o->handle_event = plant_handleevent;
+		o->name = "Bush";
 		break;
 	default:
 		break;
