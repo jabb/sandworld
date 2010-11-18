@@ -15,18 +15,18 @@ Currently sandworld is not much of a game, but you can still play around with
 it. Here's some basic controls.
 
 hjkl	Basic movement, you can also use the arrow keys.
-<tab>	Brings up a menu box.
-<space>	Interact with something. (Aslo performs the default action in boxes)
+<space>	Interact with something. Brings up a menu when you're an a box.*
 q	Quit. This applies to everything (or should).
 w	Bring up information on yourself.
 e	Bring up your rucksack (inventory).
 a	Attack something!
 s	Swap with something!
-d	Drop an item (doesn't work when looking at rucksacks).
-f	Info. Get information on something nearby. (Not implemented)
+f	Info. Get information on something nearby.
 z	Use a skill. (Not implemented)
-x	Use your tool, this is similar to attack. (Not implemented)
-c	Item creation menu. (Not implemented)
+x	Use your tool, this is similar to attack.
+c	Item creation menu.
+
+* A box is just a window in the game, like a menu or an item screen.
 
 TODO
 ====
@@ -34,9 +34,9 @@ Subject to change...
 
 [*]	Fix up the way items are represented and loaded to allow for the
 	creation of them.
-[ ]	Make the UI more intuitive and pretty.
+[*]	Make the UI more intuitive and pretty. *Still not perfect.*
 [ ]	Add more items and random item loot when breaking something.
-[ ]	Implement the creation of items.
+[*]	Implement the creation of items.
 [ ]	Add more objects.
 [ ]	Implement the ability to travel to multiple worlds.
 [ ]	Random world generation; dungeon world, forest world, boring world.

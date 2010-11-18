@@ -68,7 +68,7 @@
 #define SW_CMD_DOWN2		'j'		/* Another way to move down. */
 #define SW_CMD_LEFT2		'h'		/* Another way to move up. */
 #define SW_CMD_RIGHT2		'l'		/* Another way to move right. */
-#define SW_CMD_ACTION		' '		/* Perform action. */
+#define SW_CMD_ACTION		' '		/* Interact. Bring up menu. */
 #define SW_CMD_ACTION2		'\n'
 #define SW_CMD_QUIT		'q'		/* Quit anything. */
 #define SW_CMD_QUIT2		27
