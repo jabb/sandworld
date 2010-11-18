@@ -40,7 +40,7 @@ int sw_ui_getnumber(int def, const char *str, ...)
 			buf[pos] = c;
 			pos++;
 		}
-		else if (c == KEY_BACKSPACE || c == KEY_DC) {
+		else if (c == KEY_BACKSPACE || c == KEY_DC || c == '\b') {
 			if (pos >= 1) {
 				pos--;
 				buf[pos] = '\0';

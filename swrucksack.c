@@ -127,7 +127,7 @@ int sw_rucksack_splitn(struct sw_rucksack *rs, int pos, int num)
 {
 	int i;
 
-	if (SW_ITEMP(rs, pos)->amount < num)
+	if (SW_ITEMP(rs, pos)->amount > num)
 		return -1;
 
 	/* First pass, check for a second stack of items. */
