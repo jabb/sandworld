@@ -27,7 +27,7 @@ EVENT_HANDLER(items_handleevent)
 		break;
 	/* Interacting with an item attempts pickup. */
 	case SW_OBJ_EV_INTERACT:
-		sw_rucksack_compare(&from->rucksack, &self->rucksack);
+		sw_rsui_compare(world, &from->rucksack, &self->rucksack);
 		if (sw_rucksack_takenslots(&self->rucksack) == 0)
 			sw_world_freeobj(world, self->x, self->y);
 		break;

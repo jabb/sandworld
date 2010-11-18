@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
 			sw_obj_showstats(player);
 			break;
 		case SW_CMD_RUCKSACK:
-			sw_rucksack_show(&player->rucksack);
+			sw_rsui_show(world, &player->rucksack);
 			break;
 		case SW_CMD_ACTION: case SW_CMD_ACTION2:
 			tmpcmd = sw_ui_getdir("Interact with?");
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
 			}
 			break;
 		case SW_CMD_CREATE:
-			sw_rucksack_create(&player->rucksack);
+			sw_rsui_create(world, &player->rucksack);
 			break;
 		case SW_CMD_HELP:
 			sw_displayhelp();

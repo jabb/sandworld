@@ -26,6 +26,7 @@
 #ifndef SWWORLD_H
 #define SWWORLD_H
 
+#include "swobj.h"
 #include "swtile.h"
 
 struct sw_world {
