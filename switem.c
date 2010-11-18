@@ -27,6 +27,13 @@ struct create_node {
 #define LH_V struct sw_item
 #include "linear_hash.impl"
 
+struct linear_hash *creation_table = NULL;
+
+/******************************************************************************/
+
+/* The following three functions are required for the hash implementation
+ * since we're using a custom key.
+ */
 static unsigned long ct_hashkfn(struct create_node *node, unsigned long size)
 {
 	unsigned long hash = 0;
@@ -62,8 +69,9 @@ static struct create_node *ct_copykfn(struct create_node *node)
 	return newnode;
 }
 
-struct linear_hash *creation_table = NULL;
+/******************************************************************************/
 
+/* Inserting into an item table. */
 static int add_to_itemtable(unsigned long tflags, unsigned long uflags,
 	const char *name, int amount, int power, int resist, int uses)
 {
@@ -87,6 +95,7 @@ static int add_to_itemtable(unsigned long tflags, unsigned long uflags,
 	return 0;
 }
 
+/* Inserting into the item creation table. */
 static int add_to_createtable(struct sw_item tool, struct sw_item on,
 	struct sw_item with, struct sw_item result)
 {
@@ -98,6 +107,8 @@ static int add_to_createtable(struct sw_item tool, struct sw_item on,
 
 	return 1;
 }
+
+/******************************************************************************/
 
 int sw_item_alloctables(void)
 {
