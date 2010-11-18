@@ -127,11 +127,8 @@ int main(int argc, char *argv[])
 	int x;
 	int y;
 	int tmpcmd = 0;
-	int tmpnum = 0;
 	int cmd = 0;
 	int ret;
-	struct sw_item tmpitem;
-	struct sw_obj *tmpobj = NULL;
 	struct sw_world *world = NULL;
 	/* TODO: remove this player (world already has one) */
 	struct sw_obj *player = NULL;
@@ -161,12 +158,6 @@ int main(int argc, char *argv[])
 			sw_getdelta(cmd, &dx, &dy);
 			sw_world_moveobjby(world, player->x, player->y, dx, dy);
 			break;
-		case SW_CMD_MENU:
-			break;
-		case SW_CMD_QUIT:
-			if (sw_ui_confirm("Are you sure? (y/n)"))
-				goto exit;
-			break;
 		case SW_CMD_SELF:
 			sw_obj_showstats(player);
 			break;
@@ -192,30 +183,6 @@ int main(int argc, char *argv[])
 			}
 			break;
 		case SW_CMD_SWAP:
-			break;
-		case SW_CMD_DROP:
-			tmpnum = sw_ui_getnumber(-1, "Drop which item?");
-			if (tmpnum >= 0 && tmpnum < SW_RUCKSACK_SIZE) {
-				tmpitem = sw_rucksack_removeitem(
-					&player->rucksack, tmpnum);
-				tmpcmd = sw_ui_getdir("Drop where?");
-				if (tmpcmd != SW_CMD_NONE) {
-					sw_getdelta(tmpcmd, &dx, &dy);
-					tmpobj = sw_obj_gentype(SW_OBJ_ITEMS);
-					sw_world_placeobj(world, tmpobj,
-						player->x + dx, player->y + dy);
-
-					sw_rucksack_additem(&tmpobj->rucksack,
-						tmpitem);
-					if (!sw_rucksack_takenslots(
-						&tmpobj->rucksack))
-						sw_world_freeobj(world,
-						player->x + dx, player->y + dy);
-				}
-			}
-			else {
-				sw_ui_addalert("No such item.");
-			}
 			break;
 		case SW_CMD_INFO:
 			tmpcmd = sw_ui_getdir("Info on?");
@@ -244,6 +211,10 @@ int main(int argc, char *argv[])
 			break;
 		case SW_CMD_HELP:
 			sw_displayhelp();
+			break;
+		case SW_CMD_QUIT: case SW_CMD_QUIT2:
+			if (sw_ui_confirm("Are you sure? (y/n)"))
+				goto exit;
 			break;
 		default:
 			break;

@@ -34,9 +34,11 @@ struct sw_world;
 enum sw_obj_ev {
 	SW_OBJ_EV_UPDATE,
 	SW_OBJ_EV_MOVE,
-	SW_OBJ_EV_INTERACT,
 	SW_OBJ_EV_ATTACK,
-	SW_OBJ_EV_TOOL
+	SW_OBJ_EV_SWAP,
+	SW_OBJ_EV_SKILL,
+	SW_OBJ_EV_TOOL,
+	SW_OBJ_EV_INTERACT
 };
 
 enum sw_obj_type {

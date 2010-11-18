@@ -190,10 +190,13 @@ void sw_addmenu(const char *str, ...)
 int sw_menubox(int x, int y)
 {
 	const char *sep = "--------------------------------";
-	int sel = 0;
+	static int sel = 0; /* Static to keep the same selection selected. */
 	int maxw = MAX(strlen(sep), strlen(menuheader));
 	int i;
 	int cmd = SW_CMD_NONE;
+
+	if (sel < 0 || sel >= nummenus)
+		sel = 0;
 
 	for (i = 0; i < nummenus; ++i)
 		if (strlen(menus[i]) > maxw)

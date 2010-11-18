@@ -68,15 +68,14 @@
 #define SW_CMD_DOWN2		'j'		/* Another way to move down. */
 #define SW_CMD_LEFT2		'h'		/* Another way to move up. */
 #define SW_CMD_RIGHT2		'l'		/* Another way to move right. */
-#define SW_CMD_MENU		'\t'		/* Menu box. */
-#define SW_CMD_ACTION		' '		/* Perform action or close. */
+#define SW_CMD_ACTION		' '		/* Perform action. */
 #define SW_CMD_ACTION2		'\n'
 #define SW_CMD_QUIT		'q'		/* Quit anything. */
+#define SW_CMD_QUIT2		27
 #define SW_CMD_SELF		'w'		/* Info on self or selected. */
 #define SW_CMD_RUCKSACK		'e'		/* Rucksack of self. */
 #define SW_CMD_ATTACK		'a'		/* Attack something. */
-#define SW_CMD_SWAP		's'		/* Spawn character or item. */
-#define SW_CMD_DROP		'd'		/* Drop item (outside box). */
+#define SW_CMD_SWAP		's'		/* Swap with object. */
 #define SW_CMD_INFO		'f'		/* Info on other objects. */
 #define SW_CMD_SKILL		'z'
 #define SW_CMD_TOOL		'x'		/* Use a tool on something. */

@@ -3,33 +3,42 @@
 #include "swui.h"
 #include "swworld.h"
 
-static int items_handleevent(struct sw_world *world,
-	struct sw_obj *self, struct sw_obj *from, enum sw_obj_ev ev)
+#define EVENT_HANDLER(name) \
+static int name(struct sw_world *world, struct sw_obj *self, \
+	struct sw_obj *from, enum sw_obj_ev ev)
+
+EVENT_HANDLER(items_handleevent)
 {
+	int rv = 0;
+
 	switch (ev) {
+	/* Moving onto an object attempts to pick them all up. */
 	case SW_OBJ_EV_MOVE:
 		if (sw_rucksack_addrucksack(&from->rucksack, &self->rucksack)
 			== 0) {
+			sw_ui_addalert("You pick up some items.");
 			sw_world_freeobj(world, self->x, self->y);
 		} else {
 			sw_ui_addalert("Your rucksack is full.");
 		}
-		return -1; /* Return -1 saying, "you can't move here yet" */
+		rv = -1; /* No moving! */
+		break;
 	/* Interacting with an item attempts pickup. */
 	case SW_OBJ_EV_INTERACT:
 		sw_rucksack_compare(&from->rucksack, &self->rucksack);
 		if (sw_rucksack_takenslots(&self->rucksack) == 0)
 			sw_world_freeobj(world, self->x, self->y);
-		return 0; /* Object interaction always succeeeds? */
+		break;
 	/* Attacking an item destroys it. */
 	case SW_OBJ_EV_ATTACK:
 		sw_ui_addalert("You stomp on the items and smush them.");
 		sw_world_freeobj(world, self->x, self->y);
-		return 0;
+		break;
 	default:
-		return -1;
+		rv = -1;
+		break;
 	}
-	return -1;
+	return rv;
 }
 
 static void abyss_drop(struct sw_world *world, int x, int y)
@@ -61,28 +70,16 @@ static void abyss_drop(struct sw_world *world, int x, int y)
 		sw_world_placeobj(world, o, x, y);
 }
 
-static int abyss_handleevent(struct sw_world *world,
-	struct sw_obj *self, struct sw_obj *from, enum sw_obj_ev ev)
+EVENT_HANDLER(abyss_handleevent)
 {
 	int x;
 	int y;
+	int rv = 0;
 
 	switch (ev) {
 	case SW_OBJ_EV_MOVE:
-		if (sw_rucksack_wieldingcan(&from->rucksack, SW_ITEM_USE_DIG)) {
-			/* TODO: attack the object */
-			x = self->x;
-			y = self->y;
-			sw_world_freeobj(world, x, y);
-			abyss_drop(world, x, y);
-		} else {
-			sw_ui_addalert("You are not wielding an item "
-				"which can dig.");
-		}
-		return -1; /* Return -1 saying, "you can't move here yet" */
-	case SW_OBJ_EV_INTERACT:
-		sw_ui_addalert("You need to use a tool on abyss.");
-		return 0; /* Object interaction always succeeeds? */
+		rv = -1;
+		/* Fallthrough. */
 	case SW_OBJ_EV_TOOL:
 		if (sw_rucksack_wieldingcan(&from->rucksack, SW_ITEM_USE_DIG)) {
 			/* TODO: attack the object */
@@ -90,23 +87,28 @@ static int abyss_handleevent(struct sw_world *world,
 			y = self->y;
 			sw_world_freeobj(world, x, y);
 			abyss_drop(world, x, y);
+			sw_ui_addalert("You dig through the abyss.");
 		} else {
 			sw_ui_addalert("You are not wielding an item "
 				"which can dig.");
 		}
-		return 0; /* Dig succeeded. */
+		break;
+	case SW_OBJ_EV_INTERACT:
+		sw_ui_addalert("You need to use a tool on abyss.");
+		return 0; /* Object interaction always succeeeds? */
 	case SW_OBJ_EV_ATTACK:
 		sw_ui_addalert("Abyss cannot be attacked. Try using a tool.");
-		return -1;
+		rv = -1;
+		break;
 	default:
-		return -1;
+		rv = -1;
+		break;
 	}
 
-	return -1;
+	return rv;
 }
 
-static int tree_handleevent(struct sw_world *world,
-	struct sw_obj *self, struct sw_obj *from, enum sw_obj_ev ev)
+EVENT_HANDLER(tree_handleevent)
 {
 	struct sw_obj *tmpobj = NULL;
 	int dmg;
@@ -115,7 +117,21 @@ static int tree_handleevent(struct sw_world *world,
 
 	switch (ev) {
 	case SW_OBJ_EV_MOVE:
-		sw_ui_addalert("You cannot move there!");
+		dmg = sw_obj_attack(self, from);
+		if (sw_obj_isdestroyed(self)) {
+			sw_ui_addalert("You deal a feirce blow to the tree! "
+				"(%d dmg)", dmg);
+			x = self->x;
+			y = self->y;
+			sw_world_freeobj(world, self->x, self->y);
+			tmpobj = sw_obj_gentype(SW_OBJ_ITEMS);
+			sw_rucksack_additem(&tmpobj->rucksack,
+				sw_item_gen(SW_ITEM_WOOD));
+			sw_world_placeobj(world, tmpobj, x, y);
+		} else {
+			sw_ui_addalert("Bark IS stronger than bite! "
+				"(%d dmg)", dmg);
+		}
 		return -1; /* Return -1 saying, "you can't move here yet" */
 	case SW_OBJ_EV_ATTACK:
 		dmg = sw_obj_attack(self, from);
@@ -129,8 +145,7 @@ static int tree_handleevent(struct sw_world *world,
 			sw_rucksack_additem(&tmpobj->rucksack,
 				sw_item_gen(SW_ITEM_WOOD));
 			sw_world_placeobj(world, tmpobj, x, y);
-		}
-		else {
+		} else {
 			sw_ui_addalert("Bark IS stronger than bite! "
 				"(%d dmg)", dmg);
 		}
@@ -144,8 +159,7 @@ static int tree_handleevent(struct sw_world *world,
 	return -1;
 }
 
-static int boulder_handleevent(struct sw_world *world,
-	struct sw_obj *self, struct sw_obj *from, enum sw_obj_ev ev)
+EVENT_HANDLER(boulder_handleevent)
 {
 	struct sw_obj *tmpobj = NULL;
 	int dmg;
@@ -171,8 +185,7 @@ static int boulder_handleevent(struct sw_world *world,
 			sw_rucksack_additem(&tmpobj->rucksack,
 				sw_item_gen(SW_ITEM_DIRT));
 			sw_world_placeobj(world, tmpobj, x, y);
-		}
-		else {
+		} else {
 			sw_ui_addalert("You smack the boulder helplessly. "
 				"(%d dmg)", dmg);
 		}

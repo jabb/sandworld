@@ -87,7 +87,7 @@ int sw_rucksack_addrucksack(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 		return -1;
 
 	for (i = 0; i < SW_RUCKSACK_SIZE; ++i) {
-		if (!sw_item_isnone(*SW_ITEMP(rs, i))) {
+		if (!sw_item_isnone(*SW_ITEMP(rs2, i))) {
 			sw_rucksack_additem(rs, *SW_ITEMP(rs2, i));
 			*SW_ITEMP(rs2, i) = sw_item_gen(SW_ITEM_NONE);
 		}
@@ -127,7 +127,7 @@ int sw_rucksack_splitn(struct sw_rucksack *rs, int pos, int num)
 {
 	int i;
 
-	if (SW_ITEMP(rs, pos)->amount > num)
+	if (SW_ITEMP(rs, pos)->amount < num)
 		return -1;
 
 	/* First pass, check for a second stack of items. */
@@ -207,22 +207,40 @@ void sw_rucksack_show(struct sw_rucksack *rs)
 					sel = 0;
 				break;
 			case SW_CMD_ACTION: case SW_CMD_ACTION2:
-				goto exit;
-				break;
-			case SW_CMD_SWAP:
-				tmp = sw_ui_getnumber(-1, "Swap with?");
-				if (tmp >= 0 && tmp < SW_RUCKSACK_SIZE) {
-					sw_rucksack_swap(rs, sel, tmp);
+				sw_clearmenu();
+				sw_addmenuheader(SW_ITEMP(rs, sel)->name);
+				sw_addmenu("Info");
+				sw_addmenu("Destroy");
+				sw_addmenu("Drop");
+				sw_addmenu("Split");
+				sw_addmenu("Swap");
+				sw_addmenu("Equip as Weapon");
+				sw_addmenu("Equip as Armor");
+				tmp = sw_menubox(0, 0);
+				if (tmp == 0) {
+					sw_item_showstats(*SW_ITEMP(rs, sel));
+				} else if (tmp == 1) {
+					sw_rucksack_removeitem(rs, sel);
+				} else if (tmp == 2) {
+					/* TODO: implement. */
+				} else if (tmp == 3) {
+					tmp = sw_ui_getnumber(0, "How many?");
+					sw_rucksack_splitn(rs, sel, tmp);
+				} else if (tmp == 4) {
+					tmp = sw_ui_getnumber(-1, "Swap with?");
+					if (tmp >= 0 &&
+						tmp < SW_RUCKSACK_SIZE) {
+						sw_rucksack_swap(rs, sel, tmp);
+					}
+				} else if (tmp == 5) {
+					sw_rucksack_swap(rs, sel,
+						SW_INHAND_POS);
+				} else if (tmp == 6) {
+					sw_rucksack_swap(rs, sel,
+						SW_ONSELF_POS);
 				}
 				break;
-			case SW_CMD_LEFT: case SW_CMD_LEFT2:
-			case SW_CMD_RIGHT: case SW_CMD_RIGHT2:
-				sw_rucksack_split(rs, sel);
-				break;
-			case SW_CMD_INFO:
-				sw_item_showstats(*SW_ITEMP(rs, sel));
-				break;
-			case SW_CMD_QUIT:
+			case SW_CMD_QUIT: case SW_CMD_QUIT2:
 				return;
 			default:
 				break;
@@ -246,7 +264,7 @@ void sw_rucksack_show(struct sw_rucksack *rs)
 
 		cmd = sw_getcmd();
 	} while (1);
-exit:
+
 	return;
 }
 
@@ -275,50 +293,43 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 			case SW_CMD_RIGHT: case SW_CMD_RIGHT2:
 				which = which == 0 ? 1 : 0;
 				break;
-			case SW_CMD_MENU:
+			case SW_CMD_ACTION: case SW_CMD_ACTION2:
 				rsp = which ? rs2 : rs;
 				sw_clearmenu();
 				sw_addmenuheader(SW_ITEMP(rsp, sel)->name);
-				sw_addmenu("Tansfer");
-				sw_addmenu("Split");
+				sw_addmenu("Info");
 				sw_addmenu("Destroy");
+				sw_addmenu("Split");
+				sw_addmenu("Swap");
+				sw_addmenu("Transfer");
+				sw_addmenu("Transfer All");
 				tmp = sw_menubox(0, 0);
 				if (tmp == 0) {
+					sw_item_showstats(*SW_ITEMP(rsp, sel));
+				} else if (tmp == 1) {
+					sw_rucksack_removeitem(rsp, sel);
+				} else if (tmp == 2) {
+					tmp = sw_ui_getnumber(0, "How many?");
+					sw_rucksack_splitn(rsp, sel, tmp);
+				} else if (tmp == 3) {
+					tmp = sw_ui_getnumber(-1, "Swap with?");
+					if (tmp >= 0 &&
+						tmp < SW_RUCKSACK_SIZE) {
+						sw_rucksack_swap(rsp, sel, tmp);
+					}
+				} else if (tmp == 4) {
 					if (which == 0)
 						sw_rucksack_trans(rs2, rs, sel);
 					else
 						sw_rucksack_trans(rs, rs2, sel);
-				} else if (tmp == 1) {
-					tmp = sw_ui_getnumber(0, "How many?");
-					sw_rucksack_splitn(rsp, sel, tmp);
-				} else if (tmp == 2) {
-					sw_rucksack_removeitem(rsp, sel);
+				} else if (tmp == 5) {
+					if (sw_rucksack_addrucksack(rs, rs2)
+						== 0) {
+						return;
+					}
 				}
 				break;
-			case SW_CMD_ACTION: case SW_CMD_ACTION2:
-				if (sw_rucksack_freeslots(rs) >=
-					sw_rucksack_takenslots(rs2)) {
-					sw_rucksack_addrucksack(rs, rs2);
-					return;
-				}
-				break;
-			case SW_CMD_SWAP:
-				tmp = sw_ui_getnumber(-1, "Swap with?");
-				if (tmp >= 0 && tmp < SW_RUCKSACK_SIZE) {
-					if (which == 0)
-						sw_rucksack_swap(rs, sel, tmp);
-					else
-						sw_rucksack_swap(rs2, sel, tmp);
-				}
-				break;
-			case SW_CMD_INFO:
-				if (which == 0)
-					rsp = rs;
-				else
-					rsp = rs2;
-				sw_item_showstats(*SW_ITEMP(rsp, sel));
-				break;
-			case SW_CMD_QUIT:
+			case SW_CMD_QUIT: case SW_CMD_QUIT2:
 				return;
 			default:
 				break;
@@ -385,53 +396,49 @@ void sw_rucksack_create(struct sw_rucksack *rs)
 			case SW_CMD_RIGHT: case SW_CMD_RIGHT2:
 				which = which == 0 ? 1 : 0;
 				break;
-			case SW_CMD_MENU:
+			case SW_CMD_ACTION: case SW_CMD_ACTION2:
 				rsp = which ? &tr : rs;
 				sw_clearmenu();
-				sw_addmenuheader(SW_ITEMP(rsp, sel)->name);
-				sw_addmenu("Transfer");
-				sw_addmenu("Split");
+				sw_addmenuheader(SW_ITEMP(rs, sel)->name);
+				sw_addmenu("Info");
 				sw_addmenu("Destroy");
+				sw_addmenu("Split");
+				sw_addmenu("Swap");
+				sw_addmenu("Transfer");
+				sw_addmenu("CREATE");
 				tmp = sw_menubox(0, 0);
 				if (tmp == 0) {
+					sw_item_showstats(*SW_ITEMP(rsp, sel));
+				} else if (tmp == 1) {
+					sw_rucksack_removeitem(rsp, sel);
+				} else if (tmp == 2) {
+					tmp = sw_ui_getnumber(0, "How many?");
+					sw_rucksack_splitn(rsp, sel, tmp);
+				} else if (tmp == 3) {
+					tmp = sw_ui_getnumber(-1, "Swap with?");
+					if (tmp >= 0 &&
+						tmp < SW_RUCKSACK_SIZE) {
+						sw_rucksack_swap(rsp, sel, tmp);
+					}
+				} else if (tmp == 4) {
 					if (which == 0)
 						sw_rucksack_trans(&tr, rs, sel);
 					else
 						sw_rucksack_trans(rs, &tr, sel);
-				} else if (tmp == 1) {
-					tmp = sw_ui_getnumber(0, "How many?");
-					sw_rucksack_splitn(rsp, sel, tmp);
-				} else if (tmp == 2) {
-					sw_rucksack_removeitem(rsp, sel);
+				} else if (tmp == 5) {
+					tmpitem = sw_item_create(
+						*SW_ITEMP(&tr, 0),
+						*SW_ITEMP(&tr, 1),
+						*SW_ITEMP(&tr, 2));
+					if (!sw_item_isnone(tmpitem)) {
+						*SW_ITEMP(&tr, 3) = tmpitem;
+						sw_rucksack_removeitem(&tr, 0);
+						sw_rucksack_removeitem(&tr, 1);
+						sw_rucksack_removeitem(&tr, 2);
+					}
 				}
 				break;
-			case SW_CMD_SWAP:
-				tmp = sw_ui_getnumber(-1, "Swap with?");
-				if (tmp >= 0 && tmp < SW_RUCKSACK_SIZE) {
-					if (which == 0)
-						sw_rucksack_swap(rs, sel, tmp);
-					else
-						sw_rucksack_swap(&tr, sel, tmp);
-				}
-				break;
-			case SW_CMD_INFO:
-				if (which == 0)
-					sw_item_showstats(*SW_ITEMP(rs, sel));
-				else
-					sw_item_showstats(*SW_ITEMP(&tr, sel));
-				break;
-			case SW_CMD_CREATE:
-				tmpitem = sw_item_create(*SW_ITEMP(&tr, 0),
-					*SW_ITEMP(&tr, 1), *SW_ITEMP(&tr, 2));
-
-				if (tmpitem.id != SW_ITEM_NONE) {
-					sw_rucksack_removeitem(&tr, 0);
-					sw_rucksack_removeitem(&tr, 1);
-					sw_rucksack_removeitem(&tr, 2);
-					*SW_ITEMP(&tr, 3) = tmpitem;
-				}
-				break;
-			case SW_CMD_QUIT:
+			case SW_CMD_QUIT: case SW_CMD_QUIT2:
 				return;
 			default:
 				break;
