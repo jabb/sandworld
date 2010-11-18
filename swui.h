@@ -32,4 +32,18 @@ int sw_ui_getdir(const char *str, ...);
 void sw_ui_addalert(const char *str, ...);
 void sw_ui_draw(void);
 
+void sw_ui_addinfo(const char *str, ...);
+void sw_ui_infobox(int x, int y);
+void sw_ui_clearinfo(void);
+
+void sw_ui_addmenuheader(const char *str, ...);
+void sw_ui_addmenu(const char *str, ...);
+int sw_ui_menubox(int x, int y);
+void sw_ui_clearmenu(void);
+
+/* Maybe use this. */
+void sw_ui_loopevent(int (*fp) (int cmd));
+void sw_ui_loopdraw(void (*fp) (void));
+void sw_ui_loop(void);
+
 #endif

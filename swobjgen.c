@@ -55,7 +55,7 @@ static void drop(struct sw_world *world, int x, int y, struct a_drop drops[],
 {
 	int i;
 	struct sw_item item;
-	struct sw_obj *o = sw_obj_gentype(SW_OBJ_ITEMS);
+	struct sw_obj *o = sw_obj_gen(SW_OBJ_ITEMS);
 
 	for (i = 0; i < size; ++i) {
 		if (sw_onein(drops[i].chance)) {
@@ -99,11 +99,10 @@ EVENT_HANDLER(dirt_handleevent)
 		}
 		break;
 	case SW_OBJ_EV_INTERACT:
-		sw_ui_addalert("You need to use a tool on this stuff.");
+		sw_ui_addalert("Looks interesting.");
 		return 0; /* Object interaction always succeeeds? */
 	case SW_OBJ_EV_ATTACK:
-		sw_ui_addalert("This stuff cannot be attacked. "
-			"Try using a tool.");
+		sw_ui_addalert("You bash the %s to no effect", self->name);
 		rv = -1;
 		break;
 	default:
@@ -134,7 +133,7 @@ EVENT_HANDLER(plant_handleevent)
 			x = self->x;
 			y = self->y;
 			sw_world_freeobj(world, self->x, self->y);
-			tmpobj = sw_obj_gentype(SW_OBJ_ITEMS);
+			tmpobj = sw_obj_gen(SW_OBJ_ITEMS);
 			sw_rucksack_additem(&tmpobj->rucksack,
 				sw_item_gen(SW_ITEM_WOOD));
 			sw_world_placeobj(world, tmpobj, x, y);
@@ -144,7 +143,7 @@ EVENT_HANDLER(plant_handleevent)
 		}
 		break;
 	case SW_OBJ_EV_INTERACT:
-		sw_ui_addalert("Nice tree. Kinda mangly.");
+		sw_ui_addalert("Nice %s. Kinda mangly.", self->name);
 		break; /* Object interaction always succeeeds? */
 	default:
 		rv = -1;
@@ -176,7 +175,7 @@ EVENT_HANDLER(boulder_handleevent)
 			x = self->x;
 			y = self->y;
 			sw_world_freeobj(world, self->x, self->y);
-			tmpobj = sw_obj_gentype(SW_OBJ_ITEMS);
+			tmpobj = sw_obj_gen(SW_OBJ_ITEMS);
 			sw_rucksack_additem(&tmpobj->rucksack,
 				sw_item_gen(SW_ITEM_DIRT));
 			sw_world_placeobj(world, tmpobj, x, y);
@@ -191,7 +190,7 @@ EVENT_HANDLER(boulder_handleevent)
 	return -1;
 }
 
-struct sw_obj *sw_obj_gentype(enum sw_obj_type type)
+struct sw_obj *sw_obj_gen(enum sw_obj_type type)
 {
 	struct sw_obj *o = sw_obj_alloc();
 

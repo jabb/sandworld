@@ -96,24 +96,24 @@ void sw_stop(void)
 void sw_displayhelp(void)
 {
 	sw_setfg(SW_BLUE);
-	sw_clearinfo();
-	sw_addinfo("Help");
-	sw_addinfo("--------------------------------");
-	sw_addinfo("ijkl    movement");
-	sw_addinfo("<tab>   menu");
-	sw_addinfo("<space> interact with something or default action");
-	sw_addinfo("q       quit a box or the game");
-	sw_addinfo("w       your info");
-	sw_addinfo("e       your rucksack");
-	sw_addinfo("a       attack something");
-	sw_addinfo("s       swap with something");
-	sw_addinfo("d       drop something");
-	sw_addinfo("f       info on something");
-	sw_addinfo("z       use a skill");
-	sw_addinfo("x       use your tool on something");
-	sw_addinfo("c       create items");
-	sw_addinfo("?       this box");
-	sw_infobox(0, 0);
+	sw_ui_clearinfo();
+	sw_ui_addinfo("Help");
+	sw_ui_addinfo("--------------------------------");
+	sw_ui_addinfo("ijkl    movement");
+	sw_ui_addinfo("<tab>   menu");
+	sw_ui_addinfo("<space> interact with something or default action");
+	sw_ui_addinfo("q       quit a box or the game");
+	sw_ui_addinfo("w       your info");
+	sw_ui_addinfo("e       your rucksack");
+	sw_ui_addinfo("a       attack something");
+	sw_ui_addinfo("s       swap with something");
+	sw_ui_addinfo("d       drop something");
+	sw_ui_addinfo("f       info on something");
+	sw_ui_addinfo("z       use a skill");
+	sw_ui_addinfo("x       use your tool on something");
+	sw_ui_addinfo("c       create items");
+	sw_ui_addinfo("?       this box");
+	sw_ui_infobox(0, 0);
 }
 
 /******************************************************************************\
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 	}
 
 	world = sw_world_genstart();
-	player = sw_obj_gentype(SW_OBJ_PLAYER);
+	player = sw_obj_gen(SW_OBJ_PLAYER);
 
 	sw_world_placeobjhome(world, player);
 	sw_rucksack_additem(&player->rucksack,

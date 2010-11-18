@@ -127,3 +127,162 @@ void sw_ui_draw(void)
 
 	_alerts = 0;
 }
+
+/* Minus two for the borders. */
+static char infos[SW_HEIGHT - 2][SW_WIDTH - 2];
+static int numinfos = 0;
+
+void sw_ui_addinfo(const char *str, ...)
+{
+	va_list args;
+	va_start(args, str);
+	memset(infos[numinfos], 0, SW_WIDTH);
+	vsnprintf(infos[numinfos], SW_WIDTH, str, args);
+	va_end(args);
+	numinfos++;
+}
+
+void sw_ui_infobox(int x, int y)
+{
+	int maxw = 0;
+	int i;
+
+	for (i = 0; i < numinfos; ++i)
+		if (strlen(infos[i]) > maxw)
+			maxw = strlen(infos[i]);
+
+	for (i = 0; i < numinfos; ++i) {
+		sw_clearlineto(i + y + 1, x, maxw + x + 2);
+		sw_putstr(x + 1, i + y + 1, infos[i]);
+	}
+
+	sw_box(x, y, maxw + 2, numinfos + 2);
+
+	sw_getcmd();
+}
+
+void sw_ui_clearinfo(void)
+{
+	numinfos = 0;
+}
+
+/* Minus two for the borders. */
+static char menuheader[SW_WIDTH - 2] = {0};
+static char menus[SW_HEIGHT - 2][SW_WIDTH - 2];
+static int nummenus = 0;
+
+void sw_ui_addmenuheader(const char *str, ...)
+{
+	va_list args;
+	va_start(args, str);
+	memset(menuheader, 0, SW_WIDTH - 2);
+	vsnprintf(menuheader, SW_WIDTH - 2, str, args);
+	va_end(args);
+
+}
+
+void sw_ui_addmenu(const char *str, ...)
+{
+	va_list args;
+	va_start(args, str);
+	memset(menus[nummenus], 0, SW_WIDTH - 2);
+	vsnprintf(menus[nummenus], SW_WIDTH - 2, str, args);
+	va_end(args);
+	nummenus++;
+
+}
+
+int sw_ui_menubox(int x, int y)
+{
+	const char *sep = "--------------------------------";
+	static int sel = 0; /* Static to keep the same selection selected. */
+	int maxw = MAX(strlen(sep), strlen(menuheader));
+	int i;
+	int cmd = SW_CMD_NONE;
+
+	if (sel < 0 || sel >= nummenus)
+		sel = 0;
+
+	for (i = 0; i < nummenus; ++i)
+		if (strlen(menus[i]) > maxw)
+			maxw = strlen(menus[i]);
+
+	do {
+		switch (cmd) {
+		case SW_CMD_UP: case SW_CMD_UP2:
+			sel--;
+			if (sel < 0)
+				sel = nummenus - 1;
+			break;
+		case SW_CMD_DOWN: case SW_CMD_DOWN2:
+			sel++;
+			if (sel >= nummenus)
+				sel = 0;
+			break;
+		case SW_CMD_QUIT:
+			sel = -1;
+			goto exit;
+		case SW_CMD_ACTION: case SW_CMD_ACTION2:
+			goto exit;
+		default:
+			break;
+		}
+
+
+		sw_setfg(SW_WHITE);
+		sw_clearlineto(y + 1, x, maxw + x + 2);
+		sw_clearlineto(y + 2, x, maxw + x + 2);
+		sw_putstr(x + 1, y + 1, menuheader);
+		sw_putstr(x + 1, y + 2, sep);
+
+		for (i = 0; i < nummenus; ++i) {
+			sw_setfg(SW_WHITE);
+			if (i == sel)
+				sw_setfg(SW_YELLOW);
+			sw_clearlineto(i + y + 1 + 2, x, maxw + x + 2);
+			sw_putstr(x + 1, i + y + 1 + 2, menus[i]);
+		}
+
+		sw_setfg(SW_WHITE);
+		sw_box(x, y, maxw + 2, nummenus + 2 + 2);
+
+		cmd = sw_getcmd();
+	} while (1);
+exit:
+	return sel;
+}
+
+void sw_ui_clearmenu(void)
+{
+	sw_ui_addmenuheader("");
+	nummenus = 0;
+}
+
+static int (*loopevent) (int cmd) = NULL;
+static void (*loopdraw) (void) = NULL;
+
+void sw_ui_loopevent(int (*fp) (int cmd))
+{
+	loopevent = fp;
+}
+
+void sw_ui_loopdraw(void (*fp) (void))
+{
+	loopdraw = fp;
+}
+
+void sw_ui_loop(void)
+{
+	int cmd = SW_CMD_NONE;
+
+	do {
+		if (loopevent)
+			if (loopevent(cmd) != 0)
+				break;
+		if (loopdraw)
+			loopdraw();
+
+		cmd = sw_getcmd();
+	} while (1);
+}
+

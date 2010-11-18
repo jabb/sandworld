@@ -37,6 +37,7 @@
  */
 #define SW_ITEM_USE_NONE		0
 #define SW_ITEM_USE_DIG			(1 << 0)
+#define SW_ITEM_USE_PLANT		(1 << 1)
 
 #define SW_ITEM_NAME_LEN	32
 

@@ -136,18 +136,4 @@ void sw_box(int x, int y, int w, int h);
  */
 void sw_getdelta(int dir, int *dx, int *dy);
 
-void sw_addinfo(const char *str, ...);
-void sw_infobox(int x, int y);
-void sw_clearinfo(void);
-
-void sw_addmenuheader(const char *str, ...);
-void sw_addmenu(const char *str, ...);
-int sw_menubox(int x, int y);
-void sw_clearmenu(void);
-
-/* Maybe use this. */
-void sw_loopevent(int (*fp) (int cmd));
-void sw_loopdraw(void (*fp) (void));
-void sw_loop(void);
-
 #endif

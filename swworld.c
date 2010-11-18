@@ -17,7 +17,7 @@ struct sw_world *sw_world_alloc(void)
 		for (y = 0; y < SW_WORLD_HEIGHT; ++y)
 			*SW_TILEP(world, x, y) = sw_tile_make(SW_TILE_BLANK);
 
-	world->player = sw_obj_gentype(SW_OBJ_PLAYER);
+	world->player = sw_obj_gen(SW_OBJ_PLAYER);
 	if (!world->player)
 		return NULL;
 	world->home_x = 0;
@@ -280,21 +280,21 @@ struct sw_world *sw_world_genstart(void)
 		}
 	}
 
-	tmp = sw_obj_gentype(SW_OBJ_TREE);
+	tmp = sw_obj_gen(SW_OBJ_TREE);
 	sw_world_placeobj(world, tmp, cx + 1, cy + 1);
-	tmp = sw_obj_gentype(SW_OBJ_BOULDER);
+	tmp = sw_obj_gen(SW_OBJ_BOULDER);
 	sw_world_placeobj(world, tmp, cx - 1, cy - 1);
-	tmp = sw_obj_gentype(SW_OBJ_BUSH);
+	tmp = sw_obj_gen(SW_OBJ_BUSH);
 	sw_world_placeobj(world, tmp, cx + 3, cy - 1);
 
-	tmp = sw_obj_gentype(SW_OBJ_ITEMS);
+	tmp = sw_obj_gen(SW_OBJ_ITEMS);
 	sw_rucksack_additem(&tmp->rucksack, sw_item_gen(SW_ITEM_PULVERIZER));
 	sw_world_placeobj(world, tmp, cx - 3, cy - 1);
 
 	for (x = 0; x < SW_WORLD_WIDTH; ++x) {
 		for (y = 0; y < SW_WORLD_HEIGHT; ++y) {
 			if (SW_TILEP(world, x, y)->type == SW_TILE_BLANK) {
-				tmp = sw_obj_gentype(SW_OBJ_DIRT);
+				tmp = sw_obj_gen(SW_OBJ_DIRT);
 				*SW_TILEP(world, x, y) =
 					sw_tile_make(SW_TILE_GRASS);
 				sw_world_placeobj(world, tmp, x, y);

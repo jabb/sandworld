@@ -2,6 +2,7 @@
 #include "sandworld.h"
 #include "switem.h"
 #include "swlog.h"
+#include "swui.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -37,12 +38,12 @@ struct linear_hash *creation_table = NULL;
 static unsigned long ct_hashkfn(struct create_node *node, unsigned long size)
 {
 	unsigned long hash = 0;
-	hash += node->tool.id * 2654435761;
-	hash += node->tool.amount * 2654435761;
-	hash += node->on.id * 2654435761;
-	hash += node->on.amount * 2654435761;
-	hash += node->with.id * 2654435761;
-	hash += node->with.amount * 2654435761;
+	hash += node->tool.id * 2654435761U;
+	hash += node->tool.amount * 2654435761U;
+	hash += node->on.id * 2654435761U;
+	hash += node->on.amount * 2654435761U;
+	hash += node->with.id * 2654435761U;
+	hash += node->with.amount * 2654435761U;
 	return hash % size;
 }
 
@@ -136,6 +137,11 @@ int sw_item_alloctables(void)
 		sw_item_genamount(SW_ITEM_DIRT, 2),
 		ITEM_NONE,
 		ITEM_NONE,
+		sw_item_genamount(SW_ITEM_DIRTBALL, 1));
+	add_to_createtable(
+		sw_item_genamount(SW_ITEM_DIRT, 2),
+		ITEM_NONE,
+		ITEM_NONE,
 		sw_item_genamount(SW_ITEM_DIRTBALL, 2));
 
 	sw_logmsg("allocated item tables successfully");
@@ -211,10 +217,10 @@ struct sw_item sw_item_create(struct sw_item tool, struct sw_item on,
 void sw_item_showstats(struct sw_item i)
 {
 	sw_setfg(SW_BLUE);
-	sw_clearinfo();
-	sw_addinfo("%s", i.name);
-	sw_addinfo("--------------------------------");
-	sw_addinfo("Power: %d", i.power);
-	sw_addinfo("Resist: %d", i.resist);
-	sw_infobox(0, 0);
+	sw_ui_clearinfo();
+	sw_ui_addinfo("%s", i.name);
+	sw_ui_addinfo("--------------------------------");
+	sw_ui_addinfo("Power: %d", i.power);
+	sw_ui_addinfo("Resist: %d", i.resist);
+	sw_ui_infobox(0, 0);
 }

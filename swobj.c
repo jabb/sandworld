@@ -2,6 +2,7 @@
 
 #include "sandworld.h"
 #include "swobj.h"
+#include "swui.h"
 
 static int blank_handleevent(struct sw_world *world,
 	struct sw_obj *self, struct sw_obj *from, enum sw_obj_ev ev)
@@ -98,12 +99,12 @@ void sw_obj_draw(struct sw_obj *o, int x, int y)
 void sw_obj_showstats(struct sw_obj *o)
 {
 	sw_setfg(SW_BLUE);
-	sw_clearinfo();
-	sw_addinfo("%s", o->name);
-	sw_addinfo("--------------------------------");
-	sw_addinfo("Life: %d / %d", o->cur_life, o->max_life);
-	sw_addinfo("Power: %d (%d to %d)", sw_obj_getpower(o), sw_obj_dmgmin(o),
+	sw_ui_clearinfo();
+	sw_ui_addinfo("%s", o->name);
+	sw_ui_addinfo("--------------------------------");
+	sw_ui_addinfo("Life: %d / %d", o->cur_life, o->max_life);
+	sw_ui_addinfo("Power: %d (%d to %d)", sw_obj_getpower(o), sw_obj_dmgmin(o),
 		sw_obj_dmgmax(o));
-	sw_addinfo("Resist: %d", sw_obj_getresist(o));
-	sw_infobox(0, 0);
+	sw_ui_addinfo("Resist: %d", sw_obj_getresist(o));
+	sw_ui_infobox(0, 0);
 }

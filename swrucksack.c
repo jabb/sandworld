@@ -207,16 +207,16 @@ void sw_rucksack_show(struct sw_rucksack *rs)
 					sel = 0;
 				break;
 			case SW_CMD_ACTION: case SW_CMD_ACTION2:
-				sw_clearmenu();
-				sw_addmenuheader(SW_ITEMP(rs, sel)->name);
-				sw_addmenu("Info");
-				sw_addmenu("Destroy");
-				sw_addmenu("Drop");
-				sw_addmenu("Split");
-				sw_addmenu("Swap");
-				sw_addmenu("Equip as Weapon");
-				sw_addmenu("Equip as Armor");
-				tmp = sw_menubox(0, 0);
+				sw_ui_clearmenu();
+				sw_ui_addmenuheader(SW_ITEMP(rs, sel)->name);
+				sw_ui_addmenu("Info");
+				sw_ui_addmenu("Destroy");
+				sw_ui_addmenu("Drop");
+				sw_ui_addmenu("Split");
+				sw_ui_addmenu("Swap");
+				sw_ui_addmenu("Equip as Weapon");
+				sw_ui_addmenu("Equip as Armor");
+				tmp = sw_ui_menubox(0, 0);
 				if (tmp == 0) {
 					sw_item_showstats(*SW_ITEMP(rs, sel));
 				} else if (tmp == 1) {
@@ -295,15 +295,15 @@ void sw_rucksack_compare(struct sw_rucksack *rs, struct sw_rucksack *rs2)
 				break;
 			case SW_CMD_ACTION: case SW_CMD_ACTION2:
 				rsp = which ? rs2 : rs;
-				sw_clearmenu();
-				sw_addmenuheader(SW_ITEMP(rsp, sel)->name);
-				sw_addmenu("Info");
-				sw_addmenu("Destroy");
-				sw_addmenu("Split");
-				sw_addmenu("Swap");
-				sw_addmenu("Transfer");
-				sw_addmenu("Transfer All");
-				tmp = sw_menubox(0, 0);
+				sw_ui_clearmenu();
+				sw_ui_addmenuheader(SW_ITEMP(rsp, sel)->name);
+				sw_ui_addmenu("Info");
+				sw_ui_addmenu("Destroy");
+				sw_ui_addmenu("Split");
+				sw_ui_addmenu("Swap");
+				sw_ui_addmenu("Transfer");
+				sw_ui_addmenu("Transfer All");
+				tmp = sw_ui_menubox(0, 0);
 				if (tmp == 0) {
 					sw_item_showstats(*SW_ITEMP(rsp, sel));
 				} else if (tmp == 1) {
@@ -398,15 +398,15 @@ void sw_rucksack_create(struct sw_rucksack *rs)
 				break;
 			case SW_CMD_ACTION: case SW_CMD_ACTION2:
 				rsp = which ? &tr : rs;
-				sw_clearmenu();
-				sw_addmenuheader(SW_ITEMP(rs, sel)->name);
-				sw_addmenu("Info");
-				sw_addmenu("Destroy");
-				sw_addmenu("Split");
-				sw_addmenu("Swap");
-				sw_addmenu("Transfer");
-				sw_addmenu("CREATE");
-				tmp = sw_menubox(0, 0);
+				sw_ui_clearmenu();
+				sw_ui_addmenuheader(SW_ITEMP(rs, sel)->name);
+				sw_ui_addmenu("Info");
+				sw_ui_addmenu("Destroy");
+				sw_ui_addmenu("Split");
+				sw_ui_addmenu("Swap");
+				sw_ui_addmenu("Transfer");
+				sw_ui_addmenu("CREATE");
+				tmp = sw_ui_menubox(0, 0);
 				if (tmp == 0) {
 					sw_item_showstats(*SW_ITEMP(rsp, sel));
 				} else if (tmp == 1) {
