@@ -8,6 +8,7 @@ struct sw_world *sw_world_alloc(void)
 {
 	int x;
 	int y;
+	int i;
 	struct sw_world *world = malloc(sizeof(struct sw_world));
 
 	if (!world)
@@ -22,8 +23,9 @@ struct sw_world *sw_world_alloc(void)
 		return NULL;
 	world->home_x = 0;
 	world->home_y = 0;
-	world->linkto = NULL;
-	world->linkfrom = NULL;
+
+	for (i = 0; i < SW_WORLD_LINKS; ++i)
+		world->links[i] = NULL;
 
 	return world;
 }
@@ -46,13 +48,8 @@ void sw_world_draw(struct sw_world *world, int x, int y)
 	int yi;
 	for (xi = 0; xi < SW_WORLD_WIDTH; ++xi) {
 		for (yi = 0; yi < SW_WORLD_HEIGHT; ++yi) {
-			if (world->linkto && xi == world->linkto->x &&
-				xi == world->linkto->x) {
-				sw_setfg(SW_RED);
-				sw_putch(xi, yi, '>');
-			}
-			else if (world->linkfrom && xi == world->linkfrom->x &&
-				xi == world->linkfrom->x) {
+			if (world->links[0] && xi ==world->links[0]->x &&
+				xi == world->links[0]->x) {
 				sw_setfg(SW_RED);
 				sw_putch(xi, yi, '<');
 			}

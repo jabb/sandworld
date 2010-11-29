@@ -29,18 +29,21 @@
 #include "swobj.h"
 #include "swtile.h"
 
+#define SW_WORLD_LINKS 10
+
 struct sw_world {
 	int home_x;
 	int home_y;
 	struct sw_obj *player;
 	struct sw_tile tiles[SW_WORLD_WIDTH][SW_WORLD_HEIGHT];
+	/* links[0] is always the previous world */
 	struct sw_world_link {
 		int x;
 		int y;
 		int dest_x;
 		int dest_y;
 		struct sw_world *world;
-	} *linkto, *linkfrom;
+	} *links[SW_WORLD_LINKS];
 };
 
 struct sw_world *sw_world_alloc(void);
